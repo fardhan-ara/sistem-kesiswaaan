@@ -1,59 +1,219 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Sistem Kesiswaan - Student Management System
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Sistem Informasi Kesiswaan berbasis web menggunakan Laravel 10 untuk mengelola data siswa, pelanggaran, prestasi, sanksi, dan bimbingan konseling.
 
-## About Laravel
+## Features
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+### Core Features
+- **Manajemen Siswa**: CRUD data siswa dengan kelas dan tahun ajaran
+- **Pelanggaran Siswa**: Pencatatan pelanggaran dengan poin otomatis dan verifikasi
+- **Prestasi Siswa**: Pencatatan prestasi dengan sistem verifikasi
+- **Sanksi Otomatis**: Sanksi dibuat otomatis ketika poin pelanggaran >= 100
+- **Bimbingan Konseling**: Pencatatan sesi BK dengan siswa
+- **Dashboard**: Statistik dan grafik pelanggaran/prestasi dengan Chart.js
+- **Laporan PDF**: Export laporan siswa, pelanggaran, dan prestasi dengan filter
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### Technical Features
+- **Authentication**: Login/Register dengan role-based access (admin, kesiswaan, guru, siswa, ortu)
+- **Authorization**: Policy dan Gate untuk kontrol akses
+- **REST API**: API endpoints dengan Sanctum token authentication
+- **Notifications**: Email notifications untuk pelanggaran dan sanksi (queue support)
+- **Scheduled Tasks**: Backup database dan cleanup old files
+- **Testing**: PHPUnit tests untuk API dan authorization
+- **PDF Generation**: DomPDF untuk laporan
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Tech Stack
 
-## Learning Laravel
+- **Framework**: Laravel 10
+- **Database**: MySQL
+- **Frontend**: Bootstrap 5, Chart.js
+- **PDF**: DomPDF
+- **API Auth**: Laravel Sanctum
+- **Testing**: PHPUnit
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+## Database Structure
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+13 tables dengan foreign key relationships:
+- users, gurus, kelas, siswas
+- tahun_ajarans, jenis_pelanggarans, pelanggarans
+- sanksis, pelaksanaan_sanksis
+- jenis_prestasis, prestasis
+- bimbingan_konselings, monitoring_pelanggarans, verifikasi_datas
 
-## Laravel Sponsors
+## Installation
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### Prerequisites
+- PHP >= 8.1
+- Composer
+- MySQL
+- XAMPP/WAMP (recommended)
 
-### Premium Partners
+### Setup Steps
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+1. **Clone Repository**
+```bash
+git clone <repository-url>
+cd sistem-kesiswaan
+```
+
+2. **Install Dependencies**
+```bash
+composer install
+```
+
+3. **Environment Configuration**
+```bash
+cp .env.example .env
+php artisan key:generate
+```
+
+Edit `.env`:
+```
+DB_DATABASE=sistem-kesiswaan
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+4. **Database Setup**
+```bash
+php artisan migrate:fresh --seed
+```
+
+5. **Storage Link**
+```bash
+php artisan storage:link
+```
+
+6. **Run Application**
+```bash
+php artisan serve
+```
+
+Access: http://localhost:8000
+
+## Default Users (from Seeder)
+
+| Role | Email | Password |
+|------|-------|----------|
+| Admin | admin@test.com | password |
+| Kesiswaan | kesiswaan@test.com | password |
+| Guru | guru@test.com | password |
+| Siswa | siswa@test.com | password |
+
+## API Documentation
+
+### Authentication
+```bash
+POST /api/v1/register
+POST /api/v1/login
+POST /api/v1/logout
+```
+
+### Endpoints (Requires Bearer Token)
+```bash
+GET    /api/v1/siswa
+POST   /api/v1/siswa
+GET    /api/v1/siswa/{id}
+
+GET    /api/v1/pelanggaran
+POST   /api/v1/pelanggaran
+GET    /api/v1/pelanggaran/{id}
+
+GET    /api/v1/prestasi
+POST   /api/v1/prestasi
+GET    /api/v1/prestasi/{id}
+
+GET    /api/v1/dashboard/stats
+```
+
+## Testing
+
+Run all tests:
+```bash
+php artisan test
+```
+
+Run specific test:
+```bash
+php artisan test --filter=PelanggaranApiTest
+php artisan test --filter=PelanggaranAuthorizationTest
+```
+
+## Scheduled Tasks
+
+Add to crontab for production:
+```bash
+* * * * * cd /path-to-project && php artisan schedule:run >> /dev/null 2>&1
+```
+
+Tasks:
+- Daily database backup (storage/app/backups)
+- Cleanup old logs (>30 days) and backups (>7 days)
+
+## Project Structure
+
+```
+app/
+├── Console/Commands/       # Custom artisan commands
+├── Http/
+│   ├── Controllers/       # Web & API controllers
+│   ├── Middleware/        # Custom middleware
+│   ├── Requests/          # Form request validation
+│   └── Resources/         # API resources
+├── Models/                # Eloquent models
+├── Notifications/         # Email notifications
+└── Policies/              # Authorization policies
+
+database/
+├── migrations/            # Database migrations
+└── seeders/              # Database seeders
+
+resources/
+└── views/                # Blade templates
+
+routes/
+├── web.php               # Web routes
+└── api.php               # API routes
+
+tests/
+└── Feature/              # Feature tests
+```
+
+## Key Features Implementation
+
+### Auto Sanksi Creation
+When total verified pelanggaran poin >= 100, sanksi is automatically created and notifications sent.
+
+### Role-Based Authorization
+- Admin & Kesiswaan: Full access, can verify pelanggaran/prestasi
+- Guru: Can create pelanggaran, view data
+- Siswa: View own data only
+- Ortu: View child data only
+
+### PDF Reports
+Filter by:
+- Kelas (class)
+- Date range (tanggal_mulai - tanggal_selesai)
+
+Export types:
+- Laporan Siswa
+- Laporan Pelanggaran
+- Laporan Prestasi
 
 ## Contributing
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+1. Fork the repository
+2. Create feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit changes (`git commit -m 'Add AmazingFeature'`)
+4. Push to branch (`git push origin feature/AmazingFeature`)
+5. Open Pull Request
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+This project is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+## Contact
+
+Sistem Kesiswaan - kesiswaan@sman1.sch.id
+
+Project Link: [https://github.com/yourusername/sistem-kesiswaan](https://github.com/yourusername/sistem-kesiswaan)
