@@ -3,27 +3,51 @@
 namespace Database\Seeders;
 
 use App\Models\Siswa;
+use App\Models\User;
+use App\Models\Kelas;
+use App\Models\TahunAjaran;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class SiswaSeeder extends Seeder
 {
     public function run(): void
     {
+        $kelas = Kelas::first();
+        $tahunAjaran = TahunAjaran::where('status_aktif', 'aktif')->first();
+
+        if (!$kelas || !$tahunAjaran) {
+            $this->command->warn('Kelas atau Tahun Ajaran tidak ditemukan. Jalankan seeder Kelas dan TahunAjaran terlebih dahulu.');
+            return;
+        }
+
         $siswas = [
-            ['users_id' => 1, 'nis' => '2024001', 'nama_siswa' => 'Ahmad Fauzi', 'kelas_id' => 1, 'jenis_kelamin' => 'L', 'tahun_ajaran_id' => 1],
-            ['users_id' => 2, 'nis' => '2024002', 'nama_siswa' => 'Siti Nurhaliza', 'kelas_id' => 1, 'jenis_kelamin' => 'P', 'tahun_ajaran_id' => 1],
-            ['users_id' => 3, 'nis' => '2024003', 'nama_siswa' => 'Budi Santoso', 'kelas_id' => 1, 'jenis_kelamin' => 'L', 'tahun_ajaran_id' => 1],
-            ['users_id' => 4, 'nis' => '2024004', 'nama_siswa' => 'Dewi Lestari', 'kelas_id' => 2, 'jenis_kelamin' => 'P', 'tahun_ajaran_id' => 1],
-            ['users_id' => 5, 'nis' => '2024005', 'nama_siswa' => 'Eko Prasetyo', 'kelas_id' => 2, 'jenis_kelamin' => 'L', 'tahun_ajaran_id' => 1],
-            ['users_id' => 6, 'nis' => '2024006', 'nama_siswa' => 'Fitri Handayani', 'kelas_id' => 2, 'jenis_kelamin' => 'P', 'tahun_ajaran_id' => 1],
-            ['users_id' => 7, 'nis' => '2024007', 'nama_siswa' => 'Gilang Ramadhan', 'kelas_id' => 3, 'jenis_kelamin' => 'L', 'tahun_ajaran_id' => 1],
-            ['users_id' => 8, 'nis' => '2024008', 'nama_siswa' => 'Hani Safitri', 'kelas_id' => 3, 'jenis_kelamin' => 'P', 'tahun_ajaran_id' => 1],
-            ['users_id' => 9, 'nis' => '2024009', 'nama_siswa' => 'Indra Gunawan', 'kelas_id' => 3, 'jenis_kelamin' => 'L', 'tahun_ajaran_id' => 1],
-            ['users_id' => 10, 'nis' => '2024010', 'nama_siswa' => 'Joko Widodo', 'kelas_id' => 1, 'jenis_kelamin' => 'L', 'tahun_ajaran_id' => 1],
+            ['nis' => '2024001', 'nama_siswa' => 'Andi Wijaya', 'jenis_kelamin' => 'L'],
+            ['nis' => '2024002', 'nama_siswa' => 'Siti Nurhaliza', 'jenis_kelamin' => 'P'],
+            ['nis' => '2024003', 'nama_siswa' => 'Budi Setiawan', 'jenis_kelamin' => 'L'],
+            ['nis' => '2024004', 'nama_siswa' => 'Dewi Sartika', 'jenis_kelamin' => 'P'],
+            ['nis' => '2024005', 'nama_siswa' => 'Rizki Pratama', 'jenis_kelamin' => 'L'],
+            ['nis' => '2024006', 'nama_siswa' => 'Fitri Handayani', 'jenis_kelamin' => 'P'],
+            ['nis' => '2024007', 'nama_siswa' => 'Doni Saputra', 'jenis_kelamin' => 'L'],
+            ['nis' => '2024008', 'nama_siswa' => 'Rina Wati', 'jenis_kelamin' => 'P'],
         ];
 
-        foreach ($siswas as $siswa) {
-            Siswa::create($siswa);
+        foreach ($siswas as $index => $siswaData) {
+            $user = User::create([
+                'nama' => $siswaData['nama_siswa'],
+                'email' => strtolower(str_replace(' ', '', $siswaData['nama_siswa'])) . '@siswa.test',
+                'password' => Hash::make('password'),
+                'role' => 'siswa',
+            ]);
+
+            Siswa::create([
+                'users_id' => $user->id,
+                'nis' => $siswaData['nis'],
+                'nama_siswa' => $siswaData['nama_siswa'],
+                'jenis_kelamin' => $siswaData['jenis_kelamin'],
+                'kelas_id' => $kelas->id,
+                'tahun_ajaran_id' => $tahunAjaran->id,
+            ]);
         }
     }
 }

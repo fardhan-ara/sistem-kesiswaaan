@@ -1,0 +1,100 @@
+/* Background: biru tropic gradient */
+.login-page {
+    background: linear-gradient(135deg, #00b4d8 0%, #0077b6 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 30px 0;
+}
+
+.login-box {
+    max-width: 980px;
+    width: 100%;
+}
+
+.login-card-body {
+    border-radius: 10px;
+    padding: 1.5rem;
+    background: #ffffffee;
+}
+
+.login-logo a {
+    color: #ffffff;
+    font-size: 1.6rem;
+    font-weight: 700;
+}
+
+/* Primary buttons use biru tropic */
+.btn-primary {
+    background: linear-gradient(135deg, #00b4d8 0%, #0077b6 100%);
+    border: none;
+    color: #fff;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #0077b6 0%, #00b4d8 100%);
+}
+
+/* Role cards grid */
+.roles-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.role-card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 140px;
+    box-shadow: 0 6px 18px rgba(2,6,23,0.08);
+    cursor: pointer;
+    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+    border: 2px solid transparent;
+}
+
+.role-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 14px 30px rgba(2,6,23,0.12);
+}
+
+.role-card.selected {
+    border-color: #0077b6;
+    box-shadow: 0 18px 36px rgba(0,119,182,0.15);
+}
+
+.role-card .role-title {
+    font-weight: 700;
+    color: #013a63;
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    font-size: 1.05rem;
+}
+
+.role-card .role-features {
+    margin-top: .6rem;
+    font-size: .85rem;
+    color: #475569;
+    line-height: 1.3;
+}
+
+.role-icon {
+    font-size: 1.35rem;
+    color: #0077b6;
+}
+
+/* Login form area */
+.login-area {
+    margin-top: .75rem;
+}
+
+@media (max-width: 768px) {
+    .roles-grid { grid-template-columns: 1fr; }
+    .login-box { padding: 0 12px; }
+}

@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Pelanggaran extends Model
 {
-    protected $fillable = ['siswa_id', 'guru_id', 'jenis_pelanggaran_id', 'poin', 'keterangan', 'status_verifikasi'];
+    protected $fillable = ['siswa_id', 'guru_pencatat', 'jenis_pelanggaran_id', 'tahun_ajaran_id', 'poin', 'keterangan', 'status_verifikasi', 'guru_verifikator', 'tanggal_verifikasi'];
 
     public function siswa(): BelongsTo
     {
@@ -17,7 +17,17 @@ class Pelanggaran extends Model
 
     public function guru(): BelongsTo
     {
-        return $this->belongsTo(Guru::class);
+        return $this->belongsTo(Guru::class, 'guru_pencatat');
+    }
+
+    public function verifikator(): BelongsTo
+    {
+        return $this->belongsTo(Guru::class, 'guru_verifikator');
+    }
+
+    public function tahunAjaran(): BelongsTo
+    {
+        return $this->belongsTo(TahunAjaran::class);
     }
 
     public function jenisPelanggaran(): BelongsTo

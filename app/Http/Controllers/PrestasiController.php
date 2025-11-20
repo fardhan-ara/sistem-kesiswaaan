@@ -19,19 +19,29 @@ class PrestasiController extends Controller
     public function create()
     {
         $siswas = Siswa::with('kelas')->get();
-        $jenisPrestasis = JenisPrestasi::all();
-        return view('prestasi.create', compact('siswas', 'jenisPrestasis'));
+        $gurus = Guru::all();
+        $jenisPrestasis = JenisPrestasi::orderBy('kategori')->orderBy('poin', 'desc')->get();
+        return view('prestasi.create', compact('siswas', 'gurus', 'jenisPrestasis'));
     }
 
-    public function store(StorePrestasiRequest $request)
+    public function store(Request $request)
     {
-        $validated = $request->validated();
+        $request->validate([
+            'siswa_id' => 'required|exists:siswas,id',
+            'guru_pencatat' => 'required|exists:gurus,id',
+            'jenis_prestasi_id' => 'required|exists:jenis_prestasis,id',
+            'keterangan' => 'nullable|string'
+        ]);
+
+        $jenisPrestasi = JenisPrestasi::find($request->jenis_prestasi_id);
 
         Prestasi::create([
-            'siswa_id' => $validated['siswa_id'],
-            'jenis_prestasi_id' => $validated['jenis_prestasi_id'],
-            'keterangan' => $validated['keterangan'] ?? null,
-            'status_verifikasi' => 'pending'
+            'siswa_id' => $request->siswa_id,
+            'guru_pencatat' => $request->guru_pencatat,
+            'jenis_prestasi_id' => $request->jenis_prestasi_id,
+            'poin' => $jenisPrestasi->poin,
+            'keterangan' => $request->keterangan,
+            'status_verifikasi' => 'menunggu'
         ]);
 
         return redirect()->route('prestasi.index')->with('success', 'Data prestasi berhasil ditambahkan');
@@ -58,13 +68,31 @@ class PrestasiController extends Controller
 
     public function verify(Prestasi $prestasi)
     {
-        $prestasi->update(['status_verifikasi' => 'verified']);
-        return redirect()->route('prestasi.index')->with('success', 'Prestasi berhasil diverifikasi');
+        if (!in_array(auth()->user()->role, ['admin', 'kesiswaan'])) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $prestasi->update([
+            'status_verifikasi' => 'diverifikasi',
+            'guru_verifikator' => auth()->user()->guru->id ?? null,
+            'tanggal_verifikasi' => now()
+        ]);
+        
+        return redirect()->back()->with('success', 'Prestasi berhasil diverifikasi');
     }
 
     public function reject(Prestasi $prestasi)
     {
-        $prestasi->update(['status_verifikasi' => 'rejected']);
-        return redirect()->route('prestasi.index')->with('success', 'Prestasi ditolak');
+        if (!in_array(auth()->user()->role, ['admin', 'kesiswaan'])) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $prestasi->update([
+            'status_verifikasi' => 'ditolak',
+            'guru_verifikator' => auth()->user()->guru->id ?? null,
+            'tanggal_verifikasi' => now()
+        ]);
+        
+        return redirect()->back()->with('success', 'Prestasi ditolak');
     }
 }

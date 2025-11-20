@@ -7,10 +7,20 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class TahunAjaran extends Model
 {
-    protected $fillable = ['nama_tahun', 'semester', 'status'];
+    protected $fillable = ['tahun_ajaran', 'tahun_mulai', 'tahun_selesai', 'semester', 'status_aktif'];
 
     public function siswas(): HasMany
     {
         return $this->hasMany(Siswa::class);
+    }
+
+    public function pelanggarans(): HasMany
+    {
+        return $this->hasMany(Pelanggaran::class);
+    }
+
+    public function prestasis(): HasMany
+    {
+        return $this->hasMany(Prestasi::class);
     }
 }

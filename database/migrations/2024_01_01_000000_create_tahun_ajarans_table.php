@@ -10,9 +10,11 @@ return new class extends Migration
     {
         Schema::create('tahun_ajarans', function (Blueprint $table) {
             $table->id();
-            $table->string('nama_tahun');
-            $table->string('semester');
-            $table->enum('status', ['aktif', 'nonaktif'])->default('nonaktif');
+            $table->string('tahun_ajaran');
+            $table->year('tahun_mulai');
+            $table->year('tahun_selesai');
+            $table->enum('semester', ['ganjil', 'genap']);
+            $table->enum('status_aktif', ['aktif', 'nonaktif'])->default('nonaktif');
             $table->timestamps();
         });
     }
