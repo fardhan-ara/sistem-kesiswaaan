@@ -14,6 +14,16 @@ class Kernel extends ConsoleKernel
 
     protected function schedule(Schedule $schedule)
     {
+        // Daily incremental backup at 00:00
+        $schedule->command('backup:daily')->dailyAt('00:00');
+        
+        // Weekly full backup every Sunday at 02:00
+        $schedule->command('backup:weekly')->weekly()->sundays()->at('02:00');
+        
+        // Monthly archive backup on last day of month at 23:00
+        $schedule->command('backup:monthly')->monthlyOn(date('t'), '23:00');
+        
+        // Existing commands
         $schedule->command('backup:database')->daily();
         $schedule->command('cleanup:old-files')->daily();
     }

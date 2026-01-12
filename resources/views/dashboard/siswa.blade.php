@@ -9,17 +9,33 @@
     <div class="col-md-12">
         <div class="card">
             <div class="card-body text-center py-5">
-                <i class="fas fa-user-slash fa-5x text-warning mb-4"></i>
-                <h3>Data Siswa Belum Terdaftar</h3>
-                <p class="text-muted">{{ $message ?? 'Data siswa Anda belum terdaftar dalam sistem. Silakan hubungi admin untuk melengkapi data Anda.' }}</p>
-                <hr>
-                <div class="alert alert-info">
-                    <i class="fas fa-info-circle"></i> <strong>Informasi:</strong><br>
-                    Username Anda: <strong>{{ Auth::user()->username }}</strong><br>
-                    Email: <strong>{{ Auth::user()->email ?? '-' }}</strong><br>
-                    <br>
-                    Hubungi bagian Kesiswaan atau Admin untuk menghubungkan akun Anda dengan data siswa.
-                </div>
+                @if(isset($status) && $status === 'pending')
+                    <i class="fas fa-clock fa-5x text-warning mb-4"></i>
+                    <h3>Menunggu Persetujuan Admin</h3>
+                    <p class="text-muted">{{ $message }}</p>
+                    <div class="alert alert-warning">
+                        <i class="fas fa-hourglass-half"></i> <strong>Status: PENDING</strong><br>
+                        Akun Anda sedang dalam proses verifikasi oleh admin.<br>
+                        Anda akan dapat mengakses data setelah admin menyetujui akun Anda.
+                    </div>
+                @elseif(isset($status) && $status === 'rejected')
+                    <i class="fas fa-times-circle fa-5x text-danger mb-4"></i>
+                    <h3>Akun Ditolak</h3>
+                    <p class="text-danger">{{ $message }}</p>
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle"></i> <strong>Status: DITOLAK</strong><br>
+                        Silakan hubungi admin untuk informasi lebih lanjut.
+                    </div>
+                @else
+                    <i class="fas fa-user-slash fa-5x text-warning mb-4"></i>
+                    <h3>Data Siswa Belum Terdaftar</h3>
+                    <p class="text-muted">{{ $message ?? 'Data siswa Anda belum terdaftar dalam sistem.' }}</p>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> <strong>Informasi:</strong><br>
+                        Email: <strong>{{ Auth::user()->email ?? '-' }}</strong><br>
+                        Hubungi bagian Kesiswaan atau Admin untuk melengkapi data Anda.
+                    </div>
+                @endif
             </div>
         </div>
     </div>
@@ -272,7 +288,7 @@
                             <tr>
                                 <td>{{ $index + 1 }}</td>
                                 <td>{{ $s->pelanggaran->jenisPelanggaran->nama_pelanggaran ?? '-' }}</td>
-                                <td>{{ $s->jenis_sanksi }}</td>
+                                <td>{{ $s->nama_sanksi }}</td>
                                 <td>{{ \Carbon\Carbon::parse($s->tanggal_mulai)->format('d/m/Y') }}</td>
                                 <td>{{ \Carbon\Carbon::parse($s->tanggal_selesai)->format('d/m/Y') }}</td>
                                 <td>

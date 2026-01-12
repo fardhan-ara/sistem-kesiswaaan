@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('jenis_pelanggarans', function (Blueprint $table) {
-            $table->enum('kategori', ['ringan', 'sedang', 'berat', 'sangat_berat'])->after('poin');
+            $table->enum('kategori', ['ketertiban', 'kehadiran', 'pakaian', 'sikap', 'akademik', 'fasilitas', 'kriminal'])->after('id');
         });
     }
 

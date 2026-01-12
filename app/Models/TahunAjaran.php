@@ -7,7 +7,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class TahunAjaran extends Model
 {
-    protected $fillable = ['tahun_ajaran', 'tahun_mulai', 'tahun_selesai', 'semester', 'status_aktif'];
+    protected $fillable = ['tahun_ajaran', 'tahun_mulai', 'tahun_selesai', 'semester', 'status_aktif', 'status_approval'];
+
+    protected $appends = ['tahun_ajaran'];
+
+    public function getTahunAjaranAttribute()
+    {
+        return $this->tahun_mulai . '/' . $this->tahun_selesai;
+    }
 
     public function siswas(): HasMany
     {

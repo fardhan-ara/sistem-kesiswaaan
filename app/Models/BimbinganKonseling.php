@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class BimbinganKonseling extends Model
 {
-    protected $fillable = ['siswa_id', 'guru_id', 'catatan', 'tanggal', 'status'];
+    protected $fillable = ['siswa_id', 'guru_id', 'kategori', 'catatan', 'tanggal', 'status'];
 
     protected $casts = [
         'tanggal' => 'date'

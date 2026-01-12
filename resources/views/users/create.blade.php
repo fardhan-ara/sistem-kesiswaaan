@@ -39,9 +39,10 @@
                         <select name="role" id="role" class="form-control @error('role') is-invalid @enderror" required>
                             <option value="">Pilih Role</option>
                             <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Admin</option>
+                            <option value="kepala_sekolah" {{ old('role') == 'kepala_sekolah' ? 'selected' : '' }}>Kepala Sekolah</option>
                             <option value="kesiswaan" {{ old('role') == 'kesiswaan' ? 'selected' : '' }}>Kesiswaan</option>
+                            <option value="bk" {{ old('role') == 'bk' ? 'selected' : '' }}>BK</option>
                             <option value="guru" {{ old('role') == 'guru' ? 'selected' : '' }}>Guru</option>
-                            <option value="wali_kelas" {{ old('role') == 'wali_kelas' ? 'selected' : '' }}>Wali Kelas</option>
                             <option value="siswa" {{ old('role') == 'siswa' ? 'selected' : '' }}>Siswa</option>
                             <option value="ortu" {{ old('role') == 'ortu' ? 'selected' : '' }}>Orang Tua</option>
                         </select>
@@ -86,9 +87,10 @@
             <div class="card-body">
                 <ul class="list-unstyled">
                     <li><strong>Admin:</strong> Akses penuh sistem</li>
+                    <li><strong>Kepala Sekolah:</strong> Akses hampir penuh seperti admin</li>
                     <li><strong>Kesiswaan:</strong> Kelola data siswa, verifikasi</li>
+                    <li><strong>BK:</strong> Bimbingan konseling siswa</li>
                     <li><strong>Guru:</strong> Input pelanggaran & prestasi</li>
-                    <li><strong>Wali Kelas:</strong> Seperti guru + BK</li>
                     <li><strong>Siswa:</strong> Lihat data pribadi</li>
                     <li><strong>Orang Tua:</strong> Lihat data anak</li>
                 </ul>
@@ -96,4 +98,17 @@
         </div>
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+@if(session('success'))
+    Swal.fire({
+        icon: 'success',
+        title: 'Berhasil!',
+        text: '{{ session('success') }}',
+        timer: 3000,
+        showConfirmButton: false
+    });
+@endif
+</script>
 @endsection

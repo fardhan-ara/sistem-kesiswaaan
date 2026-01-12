@@ -3,27 +3,20 @@
 @section('title', 'Tambah Prestasi')
 @section('page-title', 'Tambah Prestasi')
 
-@push('styles')
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-<link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
-@endpush
-
 @section('content')
 <div class="card">
     <div class="card-header">
         <h3 class="card-title"><i class="fas fa-plus mr-1"></i> Form Tambah Prestasi</h3>
     </div>
-    <form action="{{ route('prestasi.store') }}" method="POST">
+    <form action="/prestasi-store-test" method="POST">
         @csrf
         <div class="card-body">
             <div class="form-group">
                 <label>Siswa <span class="text-danger">*</span></label>
-                <select name="siswa_id" id="siswa_id" class="form-control select2 @error('siswa_id') is-invalid @enderror" required>
+                <select name="siswa_id" class="form-control form-control-sm @error('siswa_id') is-invalid @enderror" required>
                     <option value="">Pilih Siswa</option>
                     @foreach($siswas as $siswa)
-                        <option value="{{ $siswa->id }}" {{ old('siswa_id') == $siswa->id ? 'selected' : '' }}>
-                            {{ $siswa->nis }} - {{ $siswa->nama_siswa }} ({{ $siswa->kelas->nama ?? '-' }})
-                        </option>
+                        <option value="{{ $siswa->id }}">{{ $siswa->nis }} - {{ $siswa->nama_siswa }} ({{ $siswa->kelas->nama_kelas ?? '-' }})</option>
                     @endforeach
                 </select>
                 @error('siswa_id')<span class="invalid-feedback">{{ $message }}</span>@enderror
@@ -31,49 +24,27 @@
 
             <div class="form-group">
                 <label>Guru Pencatat <span class="text-danger">*</span></label>
-                <select name="guru_pencatat" id="guru_pencatat" class="form-control select2 @error('guru_pencatat') is-invalid @enderror" required>
+                <select name="guru_pencatat" class="form-control form-control-sm @error('guru_pencatat') is-invalid @enderror" required>
                     <option value="">Pilih Guru</option>
                     @foreach($gurus as $guru)
-                        <option value="{{ $guru->id }}" {{ old('guru_pencatat') == $guru->id ? 'selected' : '' }}>
-                            {{ $guru->nama_guru }}
-                        </option>
+                        <option value="{{ $guru->id }}">{{ $guru->nama_guru }}</option>
                     @endforeach
                 </select>
                 @error('guru_pencatat')<span class="invalid-feedback">{{ $message }}</span>@enderror
             </div>
 
             <div class="form-group">
-                <label>Kategori Prestasi <span class="text-danger">*</span></label>
-                <select name="kategori" id="kategori" class="form-control @error('kategori') is-invalid @enderror" required>
-                    <option value="">Pilih Kategori</option>
-                    <option value="akademik" {{ old('kategori') === 'akademik' ? 'selected' : '' }}>Akademik</option>
-                    <option value="non_akademik" {{ old('kategori') === 'non_akademik' ? 'selected' : '' }}>Non-Akademik</option>
-                </select>
-                @error('kategori')<span class="invalid-feedback">{{ $message }}</span>@enderror
-            </div>
-
-            <div class="form-group">
                 <label>Jenis Prestasi <span class="text-danger">*</span></label>
-                <select name="jenis_prestasi_id" id="jenis_prestasi_id" class="form-control select2 @error('jenis_prestasi_id') is-invalid @enderror" required>
-                    <option value="">Pilih Jenis Prestasi</option>
-                    @foreach($jenisPrestasis as $jenis)
-                        <option value="{{ $jenis->id }}" data-poin="{{ $jenis->poin }}" data-kategori="{{ $jenis->kategori }}" {{ old('jenis_prestasi_id') == $jenis->id ? 'selected' : '' }}>
-                            {{ $jenis->nama_prestasi }} (Poin: {{ $jenis->poin }})
-                        </option>
-                    @endforeach
-                </select>
-                @error('jenis_prestasi_id')<span class="invalid-feedback">{{ $message }}</span>@enderror
-            </div>
-
-            <div class="form-group">
-                <label>Poin</label>
-                <input type="number" name="poin" id="poin" class="form-control" readonly>
+                <button type="button" class="btn btn-primary btn-sm btn-block" data-toggle="modal" data-target="#modalPrestasi">
+                    <i class="fas fa-search"></i> Pilih Jenis Prestasi
+                </button>
+                <input type="hidden" name="jenis_prestasi_id" id="selectedPrestasiId" required>
+                <div id="selectedPrestasiText" class="mt-2"></div>
             </div>
 
             <div class="form-group">
                 <label>Keterangan</label>
-                <textarea name="keterangan" class="form-control @error('keterangan') is-invalid @enderror" rows="3">{{ old('keterangan') }}</textarea>
-                @error('keterangan')<span class="invalid-feedback">{{ $message }}</span>@enderror
+                <textarea name="keterangan" class="form-control" rows="3">{{ old('keterangan') }}</textarea>
             </div>
         </div>
         <div class="card-footer">
@@ -82,34 +53,86 @@
         </div>
     </form>
 </div>
+
+<!-- Modal Pilih Prestasi -->
+<div class="modal fade" id="modalPrestasi" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Pilih Jenis Prestasi</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label>Tingkat Prestasi</label>
+                        <select id="filterTingkat" class="form-control form-control-sm">
+                            <option value="">Semua Tingkat</option>
+                            @foreach($tingkats as $tingkat)
+                                <option value="{{ $tingkat }}">{{ ucfirst($tingkat) }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label>Cari Prestasi</label>
+                        <input type="text" id="searchPrestasi" class="form-control form-control-sm" placeholder="Ketik untuk mencari...">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Pilih Jenis Prestasi</label>
+                    <select id="listPrestasi" class="form-control form-control-sm" size="15" style="cursor: pointer;">
+                        @foreach($jenisPrestasis as $jenis)
+                            <option value="{{ $jenis->id }}" data-tingkat="{{ $jenis->tingkat }}" data-nama="{{ strtolower($jenis->nama_prestasi) }}" data-poin="{{ $jenis->poin_reward }}" data-text="[{{ $jenis->poin_reward }} poin] {{ $jenis->nama_prestasi }}">
+                                [{{ $jenis->poin_reward }} poin] {{ $jenis->nama_prestasi }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                <button type="button" class="btn btn-primary" id="btnPilihPrestasi">Pilih</button>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 
 @push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 $(document).ready(function() {
-    $('.select2').select2({
-        theme: 'bootstrap-5',
-        width: '100%'
-    });
-
-    $('#kategori').change(function() {
-        var kategori = $(this).val();
-        $('#jenis_prestasi_id option').each(function() {
-            var optKategori = $(this).data('kategori');
-            if (kategori === '' || optKategori === kategori) {
-                $(this).show();
-            } else {
-                $(this).hide();
-            }
+    function filterPrestasi() {
+        const tingkat = $('#filterTingkat').val().toLowerCase();
+        const search = $('#searchPrestasi').val().toLowerCase();
+        
+        $('#listPrestasi option').each(function() {
+            const optTingkat = $(this).data('tingkat');
+            const optNama = $(this).data('nama');
+            
+            const matchTingkat = !tingkat || optTingkat === tingkat;
+            const matchSearch = !search || optNama.includes(search);
+            
+            $(this).toggle(matchTingkat && matchSearch);
         });
-        $('#jenis_prestasi_id').val('').trigger('change');
-        $('#poin').val('');
+    }
+    
+    $('#filterTingkat').on('change', filterPrestasi);
+    $('#searchPrestasi').on('keyup', filterPrestasi);
+    
+    $('#btnPilihPrestasi').on('click', function() {
+        const selected = $('#listPrestasi option:selected');
+        if (selected.val()) {
+            $('#selectedPrestasiId').val(selected.val());
+            $('#selectedPrestasiText').html('<div class="alert alert-success"><strong>' + selected.data('text') + '</strong></div>');
+            $('#modalPrestasi').modal('hide');
+        } else {
+            Swal.fire('Perhatian', 'Pilih jenis prestasi terlebih dahulu', 'warning');
+        }
     });
-
-    $('#jenis_prestasi_id').change(function() {
-        var poin = $(this).find(':selected').data('poin');
-        $('#poin').val(poin || '');
+    
+    $('#listPrestasi').on('dblclick', function() {
+        $('#btnPilihPrestasi').click();
     });
 });
 </script>

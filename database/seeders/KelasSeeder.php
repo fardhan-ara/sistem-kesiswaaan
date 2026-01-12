@@ -19,14 +19,18 @@ class KelasSeeder extends Seeder
             return;
         }
 
-        $kelasData = [
-            ['nama_kelas' => 'X RPL 1', 'jurusan' => 'Rekayasa Perangkat Lunak'],
-            ['nama_kelas' => 'X RPL 2', 'jurusan' => 'Rekayasa Perangkat Lunak'],
-            ['nama_kelas' => 'X TKJ 1', 'jurusan' => 'Teknik Komputer dan Jaringan'],
-            ['nama_kelas' => 'XI RPL 1', 'jurusan' => 'Rekayasa Perangkat Lunak'],
-            ['nama_kelas' => 'XI TKJ 1', 'jurusan' => 'Teknik Komputer dan Jaringan'],
-            ['nama_kelas' => 'XII RPL 1', 'jurusan' => 'Rekayasa Perangkat Lunak'],
-        ];
+        $jurusans = ['PPLG', 'BDP', 'AKT', 'DKV', 'ANM'];
+        $jenjang = ['X', 'XI', 'XII'];
+        $kelasData = [];
+
+        foreach ($jenjang as $tingkat) {
+            foreach ($jurusans as $jurusan) {
+                $kelasData[] = [
+                    'nama_kelas' => $tingkat . ' ' . $jurusan,
+                    'jurusan' => $jurusan
+                ];
+            }
+        }
 
         foreach ($kelasData as $index => $data) {
             Kelas::create([

@@ -11,30 +11,25 @@ class PasswordResetController extends Controller
 {
     public function showLinkRequestForm()
     {
-        return view('auth.passwords.email');
+        return view('auth.forgot-password');
     }
 
     public function sendResetLinkEmail(Request $request)
     {
         $request->validate(['email' => 'required|email']);
 
-        $status = Password::sendResetLink(
-            $request->only('email')
-        );
+        $status = Password::sendResetLink($request->only('email'));
 
         if ($status === Password::RESET_LINK_SENT) {
-            return back()->with('success', __($status));
+            return response()->json(['message' => 'Link reset password telah dikirim']);
         }
 
-        throw ValidationException::withMessages(['email' => __($status)]);
+        throw ValidationException::withMessages(['email' => 'Email tidak ditemukan']);
     }
 
-    public function showResetForm(Request $request, $token = null)
+    public function showResetForm($token)
     {
-        return view('auth.passwords.reset')->with([
-            'token' => $token,
-            'email' => $request->query('email')
-        ]);
+        return view('auth.reset-password', ['token' => $token]);
     }
 
     public function reset(Request $request)
@@ -42,22 +37,21 @@ class PasswordResetController extends Controller
         $request->validate([
             'token' => 'required',
             'email' => 'required|email',
-            'password' => 'required|min:6|confirmed'
+            'password' => 'required|min:6|confirmed',
         ]);
 
         $status = Password::reset(
             $request->only('email', 'password', 'password_confirmation', 'token'),
             function ($user, $password) {
                 $user->password = Hash::make($password);
-                $user->setRememberToken(\Illuminate\Support\Str::random(60));
                 $user->save();
             }
         );
 
         if ($status === Password::PASSWORD_RESET) {
-            return redirect()->route('login')->with('success', __($status));
+            return redirect()->route('login')->with('success', 'Password berhasil direset');
         }
 
-        throw ValidationException::withMessages(['email' => [__($status)]]);
+        throw ValidationException::withMessages(['email' => 'Token tidak valid atau sudah kadaluarsa']);
     }
 }

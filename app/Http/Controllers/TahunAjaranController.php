@@ -7,9 +7,19 @@ use Illuminate\Http\Request;
 
 class TahunAjaranController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $tahunAjarans = TahunAjaran::latest()->paginate(10);
+        $query = TahunAjaran::query();
+        
+        if ($request->status_aktif) {
+            $query->where('status_aktif', $request->status_aktif);
+        }
+        
+        if ($request->semester) {
+            $query->where('semester', $request->semester);
+        }
+        
+        $tahunAjarans = $query->latest()->paginate(10);
         return view('tahun-ajaran.index', compact('tahunAjarans'));
     }
 
@@ -21,7 +31,6 @@ class TahunAjaranController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'tahun_ajaran' => 'required|string|max:255|unique:tahun_ajarans,tahun_ajaran',
             'tahun_mulai' => 'required|integer|min:2020|max:2050',
             'tahun_selesai' => 'required|integer|min:2020|max:2050|gt:tahun_mulai',
             'semester' => 'required|in:ganjil,genap',
@@ -32,8 +41,16 @@ class TahunAjaranController extends Controller
             TahunAjaran::where('status_aktif', 'aktif')->update(['status_aktif' => 'nonaktif']);
         }
 
-        TahunAjaran::create($request->all());
+        $data = $request->all();
+        $data['tahun_ajaran'] = $request->tahun_mulai . '/' . $request->tahun_selesai;
+        
+        TahunAjaran::create($data);
         return redirect()->route('tahun-ajaran.index')->with('success', 'Tahun ajaran berhasil ditambahkan!');
+    }
+
+    public function show(TahunAjaran $tahunAjaran)
+    {
+        return response()->json($tahunAjaran);
     }
 
     public function edit(TahunAjaran $tahunAjaran)
@@ -44,7 +61,6 @@ class TahunAjaranController extends Controller
     public function update(Request $request, TahunAjaran $tahunAjaran)
     {
         $request->validate([
-            'tahun_ajaran' => 'required|string|max:255|unique:tahun_ajarans,tahun_ajaran,' . $tahunAjaran->id,
             'tahun_mulai' => 'required|integer|min:2020|max:2050',
             'tahun_selesai' => 'required|integer|min:2020|max:2050|gt:tahun_mulai',
             'semester' => 'required|in:ganjil,genap',
@@ -55,7 +71,10 @@ class TahunAjaranController extends Controller
             TahunAjaran::where('status_aktif', 'aktif')->update(['status_aktif' => 'nonaktif']);
         }
 
-        $tahunAjaran->update($request->all());
+        $data = $request->only(['tahun_mulai', 'tahun_selesai', 'semester', 'status_aktif']);
+        $data['tahun_ajaran'] = $request->tahun_mulai . '/' . $request->tahun_selesai;
+        
+        $tahunAjaran->update($data);
         return redirect()->route('tahun-ajaran.index')->with('success', 'Tahun ajaran berhasil diupdate!');
     }
 

@@ -10,7 +10,7 @@
     <div class="card-body">
         <form id="filterForm">
             <div class="row">
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <label class="form-label">Kelas</label>
                     <select name="kelas_id" id="kelas_id" class="form-select">
                         <option value="">Semua Kelas</option>
@@ -19,13 +19,19 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <label class="form-label">Tanggal Mulai</label>
                     <input type="date" name="tanggal_mulai" id="tanggal_mulai" class="form-control">
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <label class="form-label">Tanggal Selesai</label>
                     <input type="date" name="tanggal_selesai" id="tanggal_selesai" class="form-control">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">&nbsp;</label>
+                    <button type="button" class="btn btn-secondary btn-block" onclick="resetFilterLaporan()">
+                        <i class="fas fa-redo"></i> Reset Filter
+                    </button>
                 </div>
             </div>
         </form>
@@ -73,6 +79,12 @@
 </div>
 
 <script>
+function resetFilterLaporan() {
+    document.getElementById('kelas_id').value = '';
+    document.getElementById('tanggal_mulai').value = '';
+    document.getElementById('tanggal_selesai').value = '';
+}
+
 function exportPDF(type) {
     const kelasId = document.getElementById('kelas_id').value;
     const tanggalMulai = document.getElementById('tanggal_mulai').value;

@@ -7,7 +7,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Siswa extends Model
 {
-    protected $fillable = ['users_id', 'nis', 'nama_siswa', 'kelas_id', 'jenis_kelamin', 'tahun_ajaran_id'];
+    protected $fillable = ['users_id', 'nis', 'nama_siswa', 'kelas_id', 'jenis_kelamin', 'tahun_ajaran_id', 'status_approval'];
+
+    protected static function boot()
+    {
+        parent::boot();
+        static::deleting(function ($siswa) {
+            $siswa->user()->delete();
+        });
+    }
 
     public function user(): BelongsTo
     {
@@ -32,5 +40,10 @@ class Siswa extends Model
     public function prestasis()
     {
         return $this->hasMany(Prestasi::class);
+    }
+
+    public function biodataOrtu()
+    {
+        return $this->hasOne(BiodataOrtu::class);
     }
 }

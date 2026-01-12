@@ -12,17 +12,10 @@
         @csrf @method('PUT')
         <div class="card-body">
             <div class="form-group">
-                <label>User/Akun <span class="text-danger">*</span></label>
-                <select name="users_id" class="form-control @error('users_id') is-invalid @enderror" required>
-                    <option value="">-- Pilih User --</option>
-                    @foreach($users as $user)
-                        <option value="{{ $user->id }}" {{ old('users_id', $guru->users_id) == $user->id ? 'selected' : '' }}>
-                            {{ $user->nama }} ({{ $user->email }})
-                        </option>
-                    @endforeach
-                </select>
-                @error('users_id')<span class="invalid-feedback">{{ $message }}</span>@enderror
-                <small class="form-text text-muted">Pilih user dengan role Guru atau Wali Kelas</small>
+                <label>User/Akun</label>
+                <input type="text" class="form-control" value="{{ $guru->user->nama }} ({{ $guru->user->email }}) - Role: {{ ucfirst($guru->user->role) }}" readonly>
+                <input type="hidden" name="users_id" value="{{ $guru->users_id }}">
+                <small class="form-text text-muted">User dan role tidak dapat diubah saat edit</small>
             </div>
             
             <div class="form-group">
@@ -33,10 +26,13 @@
             </div>
             
             <div class="form-group">
-                <label>Nama Guru <span class="text-danger">*</span></label>
-                <input type="text" name="nama_guru" class="form-control @error('nama_guru') is-invalid @enderror" 
-                    value="{{ old('nama_guru', $guru->nama_guru) }}" placeholder="Masukkan nama lengkap" required>
-                @error('nama_guru')<span class="invalid-feedback">{{ $message }}</span>@enderror
+                <label>Jenis Kelamin <span class="text-danger">*</span></label>
+                <select name="jenis_kelamin" class="form-control @error('jenis_kelamin') is-invalid @enderror" required>
+                    <option value="">-- Pilih Jenis Kelamin --</option>
+                    <option value="L" {{ old('jenis_kelamin', $guru->jenis_kelamin) === 'L' ? 'selected' : '' }}>Laki-laki</option>
+                    <option value="P" {{ old('jenis_kelamin', $guru->jenis_kelamin) === 'P' ? 'selected' : '' }}>Perempuan</option>
+                </select>
+                @error('jenis_kelamin')<span class="invalid-feedback">{{ $message }}</span>@enderror
             </div>
             
             <div class="form-group">

@@ -11,16 +11,6 @@
         @csrf
         @method('PUT')
         <div class="card-body">
-            <div class="form-group">
-                <label>Tahun Ajaran <span class="text-danger">*</span></label>
-                <input type="text" name="tahun_ajaran" class="form-control @error('tahun_ajaran') is-invalid @enderror" 
-                    value="{{ old('tahun_ajaran', $tahunAjaran->tahun_ajaran) }}" placeholder="Contoh: 2024/2025" required>
-                @error('tahun_ajaran')
-                    <span class="invalid-feedback">{{ $message }}</span>
-                @enderror
-                <small class="form-text text-muted">Format: YYYY/YYYY (contoh: 2024/2025)</small>
-            </div>
-            
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
@@ -40,6 +30,7 @@
                         @error('tahun_selesai')
                             <span class="invalid-feedback">{{ $message }}</span>
                         @enderror
+                        <small class="form-text text-muted">Format output: {{ $tahunAjaran->tahun_ajaran }}</small>
                     </div>
                 </div>
             </div>

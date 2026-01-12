@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('siswas', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('users_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('users_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->string('nis', 20)->unique();
             $table->string('nama_siswa');
             $table->foreignId('kelas_id')->constrained('kelas')->onDelete('cascade');

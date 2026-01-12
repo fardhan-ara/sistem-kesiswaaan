@@ -14,14 +14,36 @@
         </div>
     </div>
     <div class="card-body">
-        <table class="table table-bordered table-striped">
+        <form method="GET" class="mb-3">
+            <div class="row">
+                <div class="col-md-4">
+                    <select name="status_aktif" class="form-control">
+                        <option value="">Semua Status</option>
+                        <option value="aktif" {{ request('status_aktif') == 'aktif' ? 'selected' : '' }}>Aktif</option>
+                        <option value="nonaktif" {{ request('status_aktif') == 'nonaktif' ? 'selected' : '' }}>Nonaktif</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <select name="semester" class="form-control">
+                        <option value="">Semua Semester</option>
+                        <option value="ganjil" {{ request('semester') == 'ganjil' ? 'selected' : '' }}>Ganjil</option>
+                        <option value="genap" {{ request('semester') == 'genap' ? 'selected' : '' }}>Genap</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-info"><i class="fas fa-filter"></i> Filter</button>
+                    <a href="{{ route('tahun-ajaran.index') }}" class="btn btn-secondary"><i class="fas fa-redo"></i> Reset</a>
+                </div>
+            </div>
+        </form>
+        <table class="table table-bordered table-striped" id="tahunAjaranTable">
             <thead>
                 <tr>
                     <th width="5%">No</th>
                     <th>Tahun Ajaran</th>
                     <th>Semester</th>
                     <th>Status</th>
-                    <th width="15%">Aksi</th>
+                    <th width="20%">Aksi</th>
                 </tr>
             </thead>
             <tbody>
@@ -38,6 +60,9 @@
                         @endif
                     </td>
                     <td>
+                        <button class="btn btn-info btn-sm" onclick="viewTahunAjaran({{ $item->id }})">
+                            <i class="fas fa-eye"></i>
+                        </button>
                         <a href="{{ route('tahun-ajaran.edit', $item) }}" class="btn btn-warning btn-sm">
                             <i class="fas fa-edit"></i>
                         </a>
@@ -60,3 +85,26 @@
     @endif
 </div>
 @endsection
+
+@push('scripts')
+<script>
+function viewTahunAjaran(id) {
+    $.get('/tahun-ajaran/' + id, function(data) {
+        Swal.fire({
+            title: 'Detail Tahun Ajaran',
+            html: `
+                <table class="table table-bordered text-left">
+                    <tr><th>Tahun Ajaran</th><td>${data.tahun_ajaran}</td></tr>
+                    <tr><th>Tahun Mulai</th><td>${data.tahun_mulai}</td></tr>
+                    <tr><th>Tahun Selesai</th><td>${data.tahun_selesai}</td></tr>
+                    <tr><th>Semester</th><td>${data.semester}</td></tr>
+                    <tr><th>Status</th><td>${data.status_aktif}</td></tr>
+                </table>
+            `,
+            width: 600,
+            confirmButtonText: 'Tutup'
+        });
+    });
+}
+</script>
+@endpush

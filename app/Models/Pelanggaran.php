@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Pelanggaran extends Model
 {
-    protected $fillable = ['siswa_id', 'guru_pencatat', 'jenis_pelanggaran_id', 'tahun_ajaran_id', 'poin', 'keterangan', 'status_verifikasi', 'guru_verifikator', 'tanggal_verifikasi'];
+    protected $fillable = ['siswa_id', 'guru_pencatat', 'jenis_pelanggaran_id', 'tahun_ajaran_id', 'poin', 'keterangan', 'tanggal_pelanggaran', 'status_verifikasi', 'guru_verifikator', 'tanggal_verifikasi', 'alasan_penolakan'];
 
     public function siswa(): BelongsTo
     {
@@ -16,6 +16,11 @@ class Pelanggaran extends Model
     }
 
     public function guru(): BelongsTo
+    {
+        return $this->belongsTo(Guru::class, 'guru_pencatat');
+    }
+
+    public function guruPencatat(): BelongsTo
     {
         return $this->belongsTo(Guru::class, 'guru_pencatat');
     }
@@ -38,5 +43,10 @@ class Pelanggaran extends Model
     public function sanksi(): HasOne
     {
         return $this->hasOne(Sanksi::class);
+    }
+
+    public function sanksis()
+    {
+        return $this->hasMany(Sanksi::class);
     }
 }

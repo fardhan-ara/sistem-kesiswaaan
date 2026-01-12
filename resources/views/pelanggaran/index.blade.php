@@ -6,7 +6,7 @@
 @section('content')
 <div class="card">
     <div class="card-header">
-        <h3 class="card-title"><i class="fas fa-ban mr-1"></i> Daftar Pelanggaran</h3>
+        <h3 class="card-title">Daftar Pelanggaran</h3>
         <div class="card-tools">
             <a href="{{ route('pelanggaran.create') }}" class="btn btn-primary btn-sm">
                 <i class="fas fa-plus"></i> Tambah Pelanggaran
@@ -14,95 +14,223 @@
         </div>
     </div>
     <div class="card-body">
-        @if(session('success'))
-        <div class="alert alert-success alert-dismissible">
-            <button type="button" class="close" data-dismiss="alert">&times;</button>
-            <i class="fas fa-check"></i> {{ session('success') }}
+        <form method="GET" class="mb-3">
+            <div class="row">
+                <div class="col-md-3">
+                    <select name="status" class="form-control form-control-sm">
+                        <option value="">Semua Status</option>
+                        <option value="menunggu" {{ request('status') == 'menunggu' ? 'selected' : '' }}>Menunggu</option>
+                        <option value="terverifikasi" {{ request('status') == 'terverifikasi' ? 'selected' : '' }}>Terverifikasi</option>
+                        <option value="ditolak" {{ request('status') == 'ditolak' ? 'selected' : '' }}>Ditolak</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select name="kategori" class="form-control form-control-sm">
+                        <option value="">Semua Kategori</option>
+                        <option value="ringan" {{ request('kategori') == 'ringan' ? 'selected' : '' }}>Ringan</option>
+                        <option value="sedang" {{ request('kategori') == 'sedang' ? 'selected' : '' }}>Sedang</option>
+                        <option value="berat" {{ request('kategori') == 'berat' ? 'selected' : '' }}>Berat</option>
+                        <option value="sangat_berat" {{ request('kategori') == 'sangat_berat' ? 'selected' : '' }}>Sangat Berat</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <input type="text" name="siswa" class="form-control form-control-sm" placeholder="Cari nama siswa..." value="{{ request('siswa') }}">
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-info btn-sm"><i class="fas fa-filter"></i> Filter</button>
+                    <a href="{{ route('pelanggaran.index') }}" class="btn btn-secondary btn-sm"><i class="fas fa-redo"></i> Reset</a>
+                </div>
+            </div>
+        </form>
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped table-sm">
+                <thead>
+                    <tr>
+                        <th style="width: 5%;">No</th>
+                        <th style="width: 15%;">Siswa</th>
+                        <th style="width: 30%;">Jenis Pelanggaran</th>
+                        <th style="width: 8%;">Kategori</th>
+                        <th style="width: 7%;">Poin</th>
+                        <th style="width: 10%;">Status</th>
+                        <th style="width: 10%;">Tanggal</th>
+                        <th class="action-column">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($pelanggarans as $index => $pelanggaran)
+                    <tr>
+                        <td>{{ $pelanggarans->firstItem() + $index }}</td>
+                        <td>{{ $pelanggaran->siswa->nama_siswa ?? 'N/A' }}</td>
+                        <td class="text-wrap">
+                            @php
+                                $pelanggaranList = [];
+                                if ($pelanggaran->pelanggaran_list) {
+                                    $pelanggaranList = json_decode($pelanggaran->pelanggaran_list, true);
+                                }
+                            @endphp
+                            
+                            <!-- Pelanggaran utama -->
+                            @if($pelanggaran->jenisPelanggaran)
+                                <div><small>• {{ $pelanggaran->jenisPelanggaran->nama_pelanggaran }} ({{ $pelanggaran->jenisPelanggaran->poin }} poin)</small></div>
+                            @endif
+                            
+                            <!-- Pelanggaran tambahan -->
+                            @if(is_array($pelanggaranList) && count($pelanggaranList) > 0)
+                                @foreach($pelanggaranList as $item)
+                                    <div><small>• {{ $item['nama'] }} ({{ $item['poin'] }} poin)</small></div>
+                                @endforeach
+                            @endif
+                        </td>
+                        <td>
+                            @php
+                                $kategori = $pelanggaran->jenisPelanggaran->kategori ?? '';
+                                $badgeClass = match($kategori) {
+                                    'ringan' => 'success',
+                                    'sedang' => 'warning',
+                                    'berat' => 'danger',
+                                    'sangat_berat' => 'dark',
+                                    default => 'secondary'
+                                };
+                            @endphp
+                            <span class="badge badge-{{ $badgeClass }}">{{ ucfirst(str_replace('_', ' ', $kategori)) }}</span>
+                        </td>
+                        <td><strong>{{ $pelanggaran->poin }}</strong></td>
+                        <td>
+                            @switch($pelanggaran->status_verifikasi)
+                                @case('diverifikasi')
+                                @case('terverifikasi')
+                                @case('verified')
+                                    <span class="badge badge-success">Terverifikasi</span>
+                                    @break
+                                @case('ditolak')
+                                @case('rejected')
+                                    <span class="badge badge-danger">Ditolak</span>
+                                    @break
+                                @default
+                                    <span class="badge badge-warning">Menunggu</span>
+                            @endswitch
+                        </td>
+                        <td>{{ $pelanggaran->tanggal_pelanggaran ? \Carbon\Carbon::parse($pelanggaran->tanggal_pelanggaran)->format('d/m/Y') : $pelanggaran->created_at->format('d/m/Y') }}</td>
+                        <td class="action-column">
+                            <div class="btn-group btn-group-sm" role="group">
+                                <button class="btn btn-info" onclick="viewDetail({{ $pelanggaran->id }})" title="Detail">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <a href="{{ route('pelanggaran.edit', $pelanggaran->id) }}" class="btn btn-warning" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <form action="/pelanggaran-delete-test/{{ $pelanggaran->id }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin hapus pelanggaran ini?')">
+                                    @csrf
+                                    <button type="submit" class="btn btn-danger" title="Hapus">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                            @if(in_array(auth()->user()->role, ['admin', 'kesiswaan']) && $pelanggaran->status_verifikasi == 'menunggu')
+                                <div class="btn-group btn-group-sm mt-1" role="group">
+                                    <form action="/pelanggaran-verify-test/{{ $pelanggaran->id }}" method="POST" class="d-inline">
+                                        @csrf
+                                        <button type="submit" class="btn btn-success" title="Setuju">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                    </form>
+                                    <button onclick="rejectPelanggaran({{ $pelanggaran->id }})" class="btn btn-secondary" title="Tolak">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            @endif
+                        </td>
+                    </tr>
+                    @empty
+                    <tr id="noData">
+                        <td colspan="8" class="text-center">Tidak ada data pelanggaran</td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
-        @endif
+    </div>
+    @if($pelanggarans->hasPages())
+    <div class="card-footer">
+        {{ $pelanggarans->links() }}
+    </div>
+    @endif
+</div>
 
-        <table class="table table-bordered table-striped">
-            <thead>
-                <tr>
-                    <th width="5%">No</th>
-                    <th>Siswa</th>
-                    <th>Kelas</th>
-                    <th>Jenis Pelanggaran</th>
-                    <th>Poin</th>
-                    <th>Guru Pencatat</th>
-                    <th>Status</th>
-                    <th width="20%">Aksi</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($pelanggarans as $pelanggaran)
-                <tr>
-                    <td>{{ $loop->iteration }}</td>
-                    <td>
-                        <strong>{{ $pelanggaran->siswa->nama_siswa }}</strong><br>
-                        <small class="text-muted">{{ $pelanggaran->siswa->nis }}</small>
-                    </td>
-                    <td>{{ $pelanggaran->siswa->kelas->nama_kelas ?? '-' }}</td>
-                    <td>{{ $pelanggaran->jenisPelanggaran->nama_pelanggaran }}</td>
-                    <td><span class="badge badge-danger">{{ $pelanggaran->poin }}</span></td>
-                    <td>{{ $pelanggaran->guru->nama_guru ?? '-' }}</td>
-                    <td>
-                        @if($pelanggaran->status_verifikasi == 'diverifikasi')
-                            <span class="badge badge-success">Diverifikasi</span>
-                        @elseif($pelanggaran->status_verifikasi == 'ditolak')
-                            <span class="badge badge-danger">Ditolak</span>
-                        @else
-                            <span class="badge badge-warning">Menunggu</span>
-                        @endif
-                    </td>
-                    <td>
-                        @if(auth()->check() && in_array(auth()->user()->role, ['admin', 'kesiswaan']) && $pelanggaran->status_verifikasi == 'menunggu')
-                            <form action="{{ route('pelanggaran.verify', $pelanggaran) }}" method="POST" class="d-inline">
-                                @csrf
-                                <button type="submit" class="btn btn-success btn-sm" title="Verifikasi">
-                                    <i class="fas fa-check"></i>
-                                </button>
-                            </form>
-                            <form action="{{ route('pelanggaran.reject', $pelanggaran) }}" method="POST" class="d-inline">
-                                @csrf
-                                <button type="submit" class="btn btn-danger btn-sm" title="Tolak">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            </form>
-                        @endif
-                        <a href="{{ route('pelanggaran.edit', $pelanggaran) }}" class="btn btn-warning btn-sm" title="Edit">
-                            <i class="fas fa-edit"></i>
-                        </a>
-                        <form action="{{ route('pelanggaran.destroy', $pelanggaran) }}" method="POST" class="d-inline">
-                            @csrf @method('DELETE')
-                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Yakin hapus?')" title="Hapus">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </form>
-                    </td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="8" class="text-center">Tidak ada data pelanggaran</td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
+<!-- Modal Detail -->
+<div class="modal fade" id="detailModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Detail Pelanggaran</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body" id="detailContent">
+                <div class="text-center"><i class="fas fa-spinner fa-spin"></i> Loading...</div>
+            </div>
+        </div>
     </div>
 </div>
 
-<div class="row mt-3">
-    <div class="col-md-12">
-        <div class="card card-info">
-            <div class="card-header">
-                <h3 class="card-title"><i class="fas fa-info-circle"></i> Keterangan Status</h3>
-            </div>
-            <div class="card-body">
-                <span class="badge badge-warning">Menunggu</span> = Pelanggaran menunggu verifikasi dari Kesiswaan<br>
-                <span class="badge badge-success">Diverifikasi</span> = Pelanggaran sudah diverifikasi dan poin dihitung<br>
-                <span class="badge badge-danger">Ditolak</span> = Pelanggaran ditolak dan poin tidak dihitung
-            </div>
-        </div>
-    </div>
-</div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 @endsection
+
+@push('scripts')
+<script>
+$(document).ready(function() {
+    $.get('/pelanggaran/' + id, function(data) {
+        $('#detailContent').html(data);
+        $('#detailModal').modal('show');
+    }).fail(function() {
+        $('#detailContent').html('<div class="alert alert-danger">Gagal memuat data</div>');
+        $('#detailModal').modal('show');
+    });
+}
+
+function rejectPelanggaran(id) {
+    Swal.fire({
+        title: 'Tolak Pelanggaran?',
+        input: 'textarea',
+        inputLabel: 'Alasan Penolakan',
+        inputPlaceholder: 'Masukkan alasan penolakan...',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Tolak',
+        cancelButtonText: 'Batal',
+        inputValidator: (value) => {
+            if (!value) return 'Alasan penolakan harus diisi!';
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/pelanggaran-reject-test/' + id;
+            form.innerHTML = '@csrf<input type="hidden" name="alasan_penolakan" value="' + result.value + '">';
+            document.body.appendChild(form);
+            form.submit();
+        }
+    });
+}
+
+@if(session('success'))
+    Swal.fire({
+        icon: 'success',
+        title: 'Berhasil!',
+        text: '{{ session('success') }}',
+        timer: 3000,
+        showConfirmButton: false
+    });
+@endif
+
+@if(session('error'))
+    Swal.fire({
+        icon: 'error',
+        title: 'Gagal!',
+        text: '{{ session('error') }}',
+        timer: 3000,
+        showConfirmButton: false
+    });
+@endif
+</script>
+@endpush

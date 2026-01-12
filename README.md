@@ -12,6 +12,8 @@ Sistem Informasi Kesiswaan berbasis web menggunakan Laravel 10 untuk mengelola d
 - **Bimbingan Konseling**: Pencatatan sesi BK dengan siswa
 - **Dashboard**: Statistik dan grafik pelanggaran/prestasi dengan Chart.js
 - **Laporan PDF**: Export laporan siswa, pelanggaran, dan prestasi dengan filter
+- **Biodata Orang Tua**: Modal biodata otomatis untuk orang tua dengan approval admin (2 syarat: KK & KTP)
+- **Validasi Pendaftaran Ortu**: Sistem validasi otomatis nama dan NIS anak saat pendaftaran orang tua
 
 ### Technical Features
 - **Authentication**: Login/Register dengan role-based access (admin, kesiswaan, guru, siswa, ortu)
@@ -91,6 +93,17 @@ php artisan serve
 
 Access: http://localhost:8000
 
+## 📚 Documentation
+
+**📌 START HERE:** [DOCUMENTATION_INDEX.md](DOCUMENTATION_INDEX.md) - Complete documentation index
+
+### Quick Access:
+- **[QUICK_START.md](QUICK_START.md)** ⚡ - Panduan cepat 5 menit (Mulai di sini!)
+- **[USER_GUIDE.md](USER_GUIDE.md)** 📖 - Panduan lengkap untuk semua user
+- **[WORKFLOW.md](WORKFLOW.md)** 🔄 - Alur kerja sistem dengan diagram
+- **[SYSTEM_HEALTH_REPORT.md](SYSTEM_HEALTH_REPORT.md)** ✅ - Status kesehatan sistem
+- **[docs/INDEX.md](docs/INDEX.md)** 🔧 - Dokumentasi teknis (96 files)
+
 ## Default Users (from Seeder)
 
 | Role | Email | Password |
@@ -168,6 +181,13 @@ database/
 ├── migrations/            # Database migrations
 └── seeders/              # Database seeders
 
+docs/                      # 📚 All documentation files (96 files)
+├── INDEX.md              # Documentation index
+├── DOKUMENTASI_*.md      # Feature documentation
+├── PERBAIKAN_*.md        # Fix guides
+├── TROUBLESHOOTING_*.md  # Troubleshooting guides
+└── *.sql, *.bat, *.php   # Utility scripts
+
 resources/
 └── views/                # Blade templates
 
@@ -211,6 +231,64 @@ Export types:
 ## License
 
 This project is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+## Troubleshooting
+
+### Data Master Siswa Tidak Bisa Diakses?
+
+1. **Cek akses user**:
+   ```bash
+   php artisan siswa:check-access email@anda.com
+   ```
+
+2. **Perbaiki role user**:
+   ```bash
+   php artisan user:fix-role email@anda.com admin
+   ```
+
+3. **Lihat dokumentasi lengkap**: `PERBAIKAN_SISWA.md`
+
+### User BK Tidak Terkoneksi dengan Data Guru?
+
+1. **Sinkronisasi data guru BK**:
+   ```bash
+   php artisan guru:sync-bk
+   ```
+   
+2. **Cek koneksi manual**:
+   ```bash
+   php artisan tinker
+   >>> $user = User::where('role', 'bk')->first();
+   >>> $guru = Guru::where('users_id', $user->id)->first();
+   >>> echo $guru ? 'Terkoneksi' : 'Tidak terkoneksi';
+   ```
+
+3. **Tambah manual jika perlu**:
+   ```bash
+   php artisan tinker
+   >>> Guru::create(['users_id' => USER_ID, 'nip' => 'AUTO-USER_ID', 'nama_guru' => 'Nama', 'bidang_studi' => 'Bimbingan Konseling (BK)', 'status' => 'aktif']);
+   ```
+
+### CRUD Siswa Tidak Berfungsi?
+
+1. Clear cache:
+   ```bash
+   php artisan cache:clear
+   php artisan config:clear
+   php artisan route:clear
+   ```
+
+2. Cek log: `storage/logs/laravel.log`
+
+3. Debug akses: `http://localhost:8000/debug-siswa`
+
+### File Bantuan:
+- `docs/INDEX.md` - Index semua dokumentasi
+- `docs/PERBAIKAN_SISWA.md` - Panduan lengkap perbaikan
+- `docs/TROUBLESHOOTING_SISWA.md` - Troubleshooting detail
+- `docs/fix_siswa_access.sql` - Query SQL helper
+- `docs/PERBAIKAN_ORTU_REGISTRATION.md` - Panduan pendaftaran orang tua dengan validasi
+- `docs/sql_helper_ortu.sql` - Query SQL helper untuk manajemen orang tua
 
 ## Contact
 

@@ -11,7 +11,7 @@ class Sanksi extends Model
 {
     use SoftDeletes;
 
-    protected $fillable = ['pelanggaran_id', 'nama_sanksi', 'tanggal_mulai', 'tanggal_selesai', 'status_sanksi'];
+    protected $fillable = ['pelanggaran_id', 'siswa_id', 'nama_sanksi', 'tanggal_mulai', 'tanggal_selesai', 'status_sanksi', 'kategori_poin', 'total_poin'];
 
     protected $casts = [
         'tanggal_mulai' => 'date',
@@ -21,6 +21,11 @@ class Sanksi extends Model
     public function pelanggaran(): BelongsTo
     {
         return $this->belongsTo(Pelanggaran::class);
+    }
+
+    public function siswa(): BelongsTo
+    {
+        return $this->belongsTo(Siswa::class);
     }
 
     public function pelaksanaanSanksis(): HasMany

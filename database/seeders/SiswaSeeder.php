@@ -13,10 +13,10 @@ class SiswaSeeder extends Seeder
 {
     public function run(): void
     {
-        $kelas = Kelas::first();
+        $kelasList = Kelas::all();
         $tahunAjaran = TahunAjaran::where('status_aktif', 'aktif')->first();
 
-        if (!$kelas || !$tahunAjaran) {
+        if ($kelasList->isEmpty() || !$tahunAjaran) {
             $this->command->warn('Kelas atau Tahun Ajaran tidak ditemukan. Jalankan seeder Kelas dan TahunAjaran terlebih dahulu.');
             return;
         }
@@ -36,7 +36,7 @@ class SiswaSeeder extends Seeder
             $user = User::create([
                 'nama' => $siswaData['nama_siswa'],
                 'email' => strtolower(str_replace(' ', '', $siswaData['nama_siswa'])) . '@siswa.test',
-                'password' => Hash::make('password'),
+                'password' => Hash::make('testing'),
                 'role' => 'siswa',
             ]);
 
@@ -45,7 +45,7 @@ class SiswaSeeder extends Seeder
                 'nis' => $siswaData['nis'],
                 'nama_siswa' => $siswaData['nama_siswa'],
                 'jenis_kelamin' => $siswaData['jenis_kelamin'],
-                'kelas_id' => $kelas->id,
+                'kelas_id' => $kelasList[$index % $kelasList->count()]->id,
                 'tahun_ajaran_id' => $tahunAjaran->id,
             ]);
         }

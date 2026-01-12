@@ -14,6 +14,11 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'role' => \App\Http\Middleware\RoleMiddleware::class,
+            'wali_kelas' => \App\Http\Middleware\CheckWaliKelas::class,
+            'homeroom_teacher' => \App\Http\Middleware\IsHomeroomTeacher::class,
+        ]);
+        $middleware->validateCsrfTokens(except: [
+            //
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

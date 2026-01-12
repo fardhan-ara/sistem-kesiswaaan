@@ -23,15 +23,15 @@ class VerifikasiController extends Controller
         
         // Statistik verifikasi
         $pelanggaranMenunggu = Pelanggaran::where('status_verifikasi', 'menunggu')->count();
-        $prestasiMenunggu = Prestasi::where('status_verifikasi', 'menunggu')->count();
+        $prestasiMenunggu = Prestasi::where('status_verifikasi', 'pending')->count();
         $pelanggaranRevisi = Pelanggaran::where('status_verifikasi', 'revisi')->count();
-        $prestasiRevisi = Prestasi::where('status_verifikasi', 'revisi')->count();
+        $prestasiRevisi = Prestasi::where('status_verifikasi', 'pending')->count();
         
         // Total terverifikasi hari ini
         $pelanggaranHariIni = Pelanggaran::where('status_verifikasi', 'terverifikasi')
             ->whereDate('updated_at', today())
             ->count();
-        $prestasiHariIni = Prestasi::where('status_verifikasi', 'terverifikasi')
+        $prestasiHariIni = Prestasi::where('status_verifikasi', 'verified')
             ->whereDate('updated_at', today())
             ->count();
             
@@ -39,7 +39,7 @@ class VerifikasiController extends Controller
         $pelanggaranDitolakHariIni = Pelanggaran::where('status_verifikasi', 'ditolak')
             ->whereDate('updated_at', today())
             ->count();
-        $prestasiDitolakHariIni = Prestasi::where('status_verifikasi', 'ditolak')
+        $prestasiDitolakHariIni = Prestasi::where('status_verifikasi', 'rejected')
             ->whereDate('updated_at', today())
             ->count();
         
@@ -51,7 +51,7 @@ class VerifikasiController extends Controller
             ->get();
             
         $prestasiBaru = Prestasi::with(['siswa.kelas', 'jenisPrestasi', 'guru'])
-            ->whereIn('status_verifikasi', ['menunggu', 'revisi'])
+            ->where('status_verifikasi', 'pending')
             ->latest()
             ->take(5)
             ->get();
@@ -64,7 +64,7 @@ class VerifikasiController extends Controller
             $statistikHarian['pelanggaran'][] = Pelanggaran::where('status_verifikasi', 'terverifikasi')
                 ->whereDate('updated_at', $tanggal->toDateString())
                 ->count();
-            $statistikHarian['prestasi'][] = Prestasi::where('status_verifikasi', 'terverifikasi')
+            $statistikHarian['prestasi'][] = Prestasi::where('status_verifikasi', 'verified')
                 ->whereDate('updated_at', $tanggal->toDateString())
                 ->count();
         }
@@ -112,13 +112,6 @@ class VerifikasiController extends Controller
             });
         }
         
-        // Filter berdasarkan kategori
-        if ($request->filled('kategori')) {
-            $query->whereHas('jenisPelanggaran', function($q) use ($request) {
-                $q->where('kategori', $request->kategori);
-            });
-        }
-        
         $pelanggarans = $query->latest()->paginate(20);
         $kelas = \App\Models\Kelas::all();
         
@@ -131,7 +124,7 @@ class VerifikasiController extends Controller
     public function prestasiMenunggu(Request $request)
     {
         $query = Prestasi::with(['siswa.kelas', 'jenisPrestasi', 'guru'])
-            ->whereIn('status_verifikasi', ['menunggu', 'revisi']);
+            ->where('status_verifikasi', 'pending');
             
         // Filter berdasarkan status
         if ($request->filled('status')) {
@@ -193,7 +186,7 @@ class VerifikasiController extends Controller
             'jenisPrestasi', 
             'guru',
             'siswa.prestasis' => function($q) {
-                $q->where('status_verifikasi', 'terverifikasi')
+                $q->where('status_verifikasi', 'verified')
                   ->latest()
                   ->take(5);
             }
@@ -201,7 +194,7 @@ class VerifikasiController extends Controller
         
         // Hitung total poin prestasi siswa
         $totalPoin = Prestasi::where('siswa_id', $prestasi->siswa_id)
-            ->where('status_verifikasi', 'terverifikasi')
+            ->where('status_verifikasi', 'verified')
             ->sum('poin');
             
         return view('verifikasi.prestasi-detail', compact('prestasi', 'totalPoin'));
@@ -349,7 +342,7 @@ class VerifikasiController extends Controller
         DB::beginTransaction();
         try {
             $prestasi->update([
-                'status_verifikasi' => 'terverifikasi',
+                'status_verifikasi' => 'verified',
                 'guru_verifikator' => $guru ? $guru->id : null,
                 'tanggal_verifikasi' => now(),
                 'catatan_verifikasi' => $request->catatan_verifikasi
@@ -391,7 +384,7 @@ class VerifikasiController extends Controller
         DB::beginTransaction();
         try {
             $prestasi->update([
-                'status_verifikasi' => 'ditolak',
+                'status_verifikasi' => 'rejected',
                 'guru_verifikator' => $guru ? $guru->id : null,
                 'tanggal_verifikasi' => now(),
                 'catatan_verifikasi' => $request->alasan_penolakan
@@ -433,7 +426,7 @@ class VerifikasiController extends Controller
         DB::beginTransaction();
         try {
             $prestasi->update([
-                'status_verifikasi' => 'revisi',
+                'status_verifikasi' => 'pending',
                 'guru_verifikator' => $guru ? $guru->id : null,
                 'tanggal_verifikasi' => now(),
                 'catatan_verifikasi' => $request->catatan_revisi
@@ -556,9 +549,9 @@ class VerifikasiController extends Controller
         try {
             foreach ($request->prestasi_ids as $id) {
                 $prestasi = Prestasi::find($id);
-                if ($prestasi && $prestasi->status_verifikasi == 'menunggu') {
+                if ($prestasi && $prestasi->status_verifikasi == 'pending') {
                     $prestasi->update([
-                        'status_verifikasi' => 'terverifikasi',
+                        'status_verifikasi' => 'verified',
                         'guru_verifikator' => $guru ? $guru->id : null,
                         'tanggal_verifikasi' => now()
                     ]);

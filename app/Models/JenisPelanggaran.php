@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class JenisPelanggaran extends Model
 {
-    protected $fillable = ['kelompok', 'nama_pelanggaran', 'poin', 'kategori', 'sanksi_rekomendasi'];
+    protected $fillable = ['kategori', 'nama_pelanggaran', 'poin', 'sanksi_rekomendasi'];
 
     public function pelanggarans(): HasMany
     {

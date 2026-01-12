@@ -33,10 +33,13 @@
             </div>
             
             <div class="form-group">
-                <label>Nama Guru <span class="text-danger">*</span></label>
-                <input type="text" name="nama_guru" class="form-control @error('nama_guru') is-invalid @enderror" 
-                    value="{{ old('nama_guru') }}" placeholder="Masukkan nama lengkap" required>
-                @error('nama_guru')<span class="invalid-feedback">{{ $message }}</span>@enderror
+                <label>Jenis Kelamin <span class="text-danger">*</span></label>
+                <select name="jenis_kelamin" class="form-control @error('jenis_kelamin') is-invalid @enderror" required>
+                    <option value="">-- Pilih Jenis Kelamin --</option>
+                    <option value="L" {{ old('jenis_kelamin') === 'L' ? 'selected' : '' }}>Laki-laki</option>
+                    <option value="P" {{ old('jenis_kelamin') === 'P' ? 'selected' : '' }}>Perempuan</option>
+                </select>
+                @error('jenis_kelamin')<span class="invalid-feedback">{{ $message }}</span>@enderror
             </div>
             
             <div class="form-group">
