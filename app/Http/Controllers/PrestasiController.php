@@ -251,12 +251,14 @@ class PrestasiController extends Controller
             abort(403, 'Anda tidak memiliki akses untuk verifikasi prestasi.');
         }
 
-        // Check if already verified
+        // CRITICAL FIX: Check if already verified
         if ($prestasi->status_verifikasi !== 'pending') {
-            return redirect()->back()->with('error', 'Prestasi sudah diverifikasi sebelumnya.');
+            return redirect()->back()->with('error', 'Prestasi sudah diverifikasi sebelumnya. Status saat ini: ' . $prestasi->status_verifikasi);
         }
 
         try {
+            \DB::beginTransaction();
+            
             $guru = \App\Models\Guru::where('users_id', auth()->id())->first();
             $action = $request->input('action', 'approve');
             
@@ -271,7 +273,8 @@ class PrestasiController extends Controller
                     'prestasi_id' => $prestasi->id,
                     'siswa' => $prestasi->siswa->nama_siswa,
                     'poin' => $prestasi->poin,
-                    'verifikator' => auth()->user()->name
+                    'verifikator' => auth()->user()->name,
+                    'ip' => request()->ip()
                 ]);
                 
                 $message = 'Prestasi berhasil disetujui! Poin +' . $prestasi->poin . ' untuk ' . $prestasi->siswa->nama_siswa;
@@ -285,14 +288,17 @@ class PrestasiController extends Controller
                 \Log::info('Prestasi rejected', [
                     'prestasi_id' => $prestasi->id,
                     'siswa' => $prestasi->siswa->nama_siswa,
-                    'verifikator' => auth()->user()->name
+                    'verifikator' => auth()->user()->name,
+                    'ip' => request()->ip()
                 ]);
                 
                 $message = 'Prestasi ditolak';
             }
             
+            \DB::commit();
             return redirect()->back()->with('success', $message);
         } catch (\Exception $e) {
+            \DB::rollBack();
             \Log::error('Verify prestasi error: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Gagal verifikasi: ' . $e->getMessage());
         }
