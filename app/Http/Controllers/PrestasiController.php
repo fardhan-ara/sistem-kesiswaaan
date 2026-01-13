@@ -14,24 +14,57 @@ class PrestasiController extends Controller
     public function index(Request $request)
     {
         try {
-            $query = Prestasi::with(['siswa.kelas', 'jenisPrestasi', 'guru']);
+            $query = Prestasi::with(['siswa.kelas', 'jenisPrestasi', 'guru', 'verifikator']);
             
+            // Filter by status
             if ($request->filled('status')) {
                 $query->where('status_verifikasi', $request->status);
             }
+            
+            // Filter by siswa
             if ($request->filled('siswa')) {
                 $query->whereHas('siswa', function($q) use ($request) {
-                    $q->where('nama_siswa', 'like', '%' . $request->siswa . '%');
+                    $q->where('nama_siswa', 'like', '%' . $request->siswa . '%')
+                      ->orWhere('nis', 'like', '%' . $request->siswa . '%');
                 });
             }
+            
+            // Filter by jenis prestasi
             if ($request->filled('prestasi')) {
                 $query->whereHas('jenisPrestasi', function($q) use ($request) {
                     $q->where('nama_prestasi', 'like', '%' . $request->prestasi . '%');
                 });
             }
             
-            $prestasis = $query->latest()->paginate(20)->withQueryString();
-            return view('prestasi.index', compact('prestasis'));
+            // Filter by tingkat
+            if ($request->filled('tingkat')) {
+                $query->whereHas('jenisPrestasi', function($q) use ($request) {
+                    $q->where('tingkat', $request->tingkat);
+                });
+            }
+            
+            // Filter by kelas
+            if ($request->filled('kelas')) {
+                $query->whereHas('siswa', function($q) use ($request) {
+                    $q->where('kelas_id', $request->kelas);
+                });
+            }
+            
+            // Filter by date range
+            if ($request->filled('tanggal_mulai')) {
+                $query->whereDate('tanggal_prestasi', '>=', $request->tanggal_mulai);
+            }
+            if ($request->filled('tanggal_selesai')) {
+                $query->whereDate('tanggal_prestasi', '<=', $request->tanggal_selesai);
+            }
+            
+            $prestasis = $query->latest('tanggal_prestasi')->paginate(20)->withQueryString();
+            
+            // Get filter options
+            $tingkats = JenisPrestasi::select('tingkat')->distinct()->pluck('tingkat');
+            $kelass = \App\Models\Kelas::orderBy('nama_kelas')->get();
+            
+            return view('prestasi.index', compact('prestasis', 'tingkats', 'kelass'));
         } catch (\Exception $e) {
             \Log::error('Prestasi Index Error: ' . $e->getMessage());
             return redirect()->route('dashboard')->with('error', 'Gagal memuat halaman prestasi: ' . $e->getMessage());
@@ -73,8 +106,18 @@ class PrestasiController extends Controller
             'siswa_id' => 'required|exists:siswas,id',
             'guru_pencatat' => 'required|exists:gurus,id',
             'jenis_prestasi_id' => 'required|exists:jenis_prestasis,id',
-            'keterangan' => 'nullable|string',
-            'tanggal_prestasi' => 'nullable|date'
+            'keterangan' => 'nullable|string|max:1000',
+            'tanggal_prestasi' => 'nullable|date|before_or_equal:today'
+        ], [
+            'siswa_id.required' => 'Siswa harus dipilih',
+            'siswa_id.exists' => 'Siswa tidak ditemukan',
+            'guru_pencatat.required' => 'Guru pencatat harus dipilih',
+            'guru_pencatat.exists' => 'Guru tidak ditemukan',
+            'jenis_prestasi_id.required' => 'Jenis prestasi harus dipilih',
+            'jenis_prestasi_id.exists' => 'Jenis prestasi tidak ditemukan',
+            'keterangan.max' => 'Keterangan maksimal 1000 karakter',
+            'tanggal_prestasi.date' => 'Format tanggal tidak valid',
+            'tanggal_prestasi.before_or_equal' => 'Tanggal prestasi tidak boleh lebih dari hari ini'
         ]);
         
         \Log::info('Validation passed:', $validated);
@@ -82,6 +125,12 @@ class PrestasiController extends Controller
         try {
             $jenisPrestasi = JenisPrestasi::findOrFail($request->jenis_prestasi_id);
             $siswa = Siswa::findOrFail($request->siswa_id);
+            
+            // Validate poin_reward exists
+            if (!$jenisPrestasi->poin_reward || $jenisPrestasi->poin_reward <= 0) {
+                return redirect()->back()->withInput()
+                    ->with('error', 'Jenis prestasi tidak memiliki poin reward yang valid');
+            }
             
             \Log::info('Found siswa:', ['id' => $siswa->id, 'nama' => $siswa->nama_siswa]);
             \Log::info('Found jenis:', ['id' => $jenisPrestasi->id, 'poin_reward' => $jenisPrestasi->poin_reward]);
@@ -103,14 +152,15 @@ class PrestasiController extends Controller
             
             \Log::info('Prestasi created successfully!', ['id' => $prestasi->id]);
 
-            return redirect('/prestasi')->with('success', 'Data prestasi berhasil ditambahkan!');
+            return redirect()->route('prestasi.index')
+                ->with('success', 'Prestasi berhasil ditambahkan! Menunggu verifikasi dari Admin/Kesiswaan.');
         } catch (\Exception $e) {
             \Log::error('=== PRESTASI STORE ERROR ===');
             \Log::error('Error: ' . $e->getMessage());
             \Log::error('File: ' . $e->getFile() . ':' . $e->getLine());
             \Log::error('Trace: ' . $e->getTraceAsString());
             
-            return redirect()->back()->withInput()->with('error', 'ERROR: ' . $e->getMessage());
+            return redirect()->back()->withInput()->with('error', 'Gagal menyimpan prestasi: ' . $e->getMessage());
         }
     }
 
@@ -198,7 +248,12 @@ class PrestasiController extends Controller
     public function verify(Request $request, Prestasi $prestasi)
     {
         if (!in_array(auth()->user()->role, ['admin', 'kesiswaan'])) {
-            abort(403, 'Unauthorized action.');
+            abort(403, 'Anda tidak memiliki akses untuk verifikasi prestasi.');
+        }
+
+        // Check if already verified
+        if ($prestasi->status_verifikasi !== 'pending') {
+            return redirect()->back()->with('error', 'Prestasi sudah diverifikasi sebelumnya.');
         }
 
         try {
@@ -211,19 +266,35 @@ class PrestasiController extends Controller
                     'guru_verifikator' => $guru ? $guru->id : null,
                     'tanggal_verifikasi' => now()
                 ]);
-                $message = 'Prestasi berhasil disetujui';
+                
+                \Log::info('Prestasi verified', [
+                    'prestasi_id' => $prestasi->id,
+                    'siswa' => $prestasi->siswa->nama_siswa,
+                    'poin' => $prestasi->poin,
+                    'verifikator' => auth()->user()->name
+                ]);
+                
+                $message = 'Prestasi berhasil disetujui! Poin +' . $prestasi->poin . ' untuk ' . $prestasi->siswa->nama_siswa;
             } else {
                 $prestasi->update([
                     'status_verifikasi' => 'rejected',
                     'guru_verifikator' => $guru ? $guru->id : null,
                     'tanggal_verifikasi' => now()
                 ]);
+                
+                \Log::info('Prestasi rejected', [
+                    'prestasi_id' => $prestasi->id,
+                    'siswa' => $prestasi->siswa->nama_siswa,
+                    'verifikator' => auth()->user()->name
+                ]);
+                
                 $message = 'Prestasi ditolak';
             }
             
             return redirect()->back()->with('success', $message);
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Gagal: ' . $e->getMessage());
+            \Log::error('Verify prestasi error: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal verifikasi: ' . $e->getMessage());
         }
     }
 
