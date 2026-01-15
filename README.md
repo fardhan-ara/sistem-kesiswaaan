@@ -14,6 +14,7 @@ Sistem Informasi Kesiswaan berbasis web menggunakan Laravel 10 untuk mengelola d
 - **Laporan PDF**: Export laporan siswa, pelanggaran, dan prestasi dengan filter
 - **Biodata Orang Tua**: Modal biodata otomatis untuk orang tua dengan approval admin (2 syarat: KK & KTP)
 - **Validasi Pendaftaran Ortu**: Sistem validasi otomatis nama dan NIS anak saat pendaftaran orang tua
+- **Integrasi Orang Tua - Siswa**: Orang tua dapat mengakses semua data anak (pelanggaran, prestasi, sanksi, BK) secara real-time
 
 ### Technical Features
 - **Authentication**: Login/Register dengan role-based access (admin, kesiswaan, guru, siswa, ortu)
@@ -289,6 +290,8 @@ This project is open-sourced software licensed under the [MIT license](https://o
 - `docs/fix_siswa_access.sql` - Query SQL helper
 - `docs/PERBAIKAN_ORTU_REGISTRATION.md` - Panduan pendaftaran orang tua dengan validasi
 - `docs/sql_helper_ortu.sql` - Query SQL helper untuk manajemen orang tua
+- `docs/INTEGRASI_ORTU_SISWA.md` - Dokumentasi integrasi orang tua dengan data siswa
+- `docs/sql_helper_integrasi_ortu.sql` - Query SQL helper untuk testing integrasi
 
 ## Contact
 

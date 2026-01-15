@@ -223,41 +223,115 @@
                         </a>
                     </li>
 
-                    @if(auth()->check() && in_array(auth()->user()->role, ['admin', 'kesiswaan', 'kepala_sekolah']))
-                    <li class="nav-header">DATA MASTER</li>
+                    @if(auth()->check() && auth()->user()->role === 'ortu')
+                    <li class="nav-header">DATA ANAK</li>
                     
                     <li class="nav-item">
-                        <a href="/siswa" class="nav-link {{ request()->is('siswa*') ? 'active' : '' }}">
+                        <a href="{{ route('ortu.profil') }}" class="nav-link {{ request()->routeIs('ortu.profil') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-user-graduate"></i>
-                            <p>Siswa</p>
+                            <p>Profil Anak</p>
                         </a>
                     </li>
                     
                     <li class="nav-item">
-                        <a href="{{ route('kelas.index') }}" class="nav-link {{ request()->routeIs('kelas.*') ? 'active' : '' }}">
-                            <i class="nav-icon fas fa-school"></i>
-                            <p>Kelas</p>
+                        <a href="{{ route('ortu.pelanggaran') }}" class="nav-link {{ request()->routeIs('ortu.pelanggaran') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-exclamation-triangle"></i>
+                            <p>Pelanggaran</p>
+                        </a>
+                    </li>
+                    
+                    <li class="nav-item">
+                        <a href="{{ route('ortu.prestasi') }}" class="nav-link {{ request()->routeIs('ortu.prestasi') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-trophy"></i>
+                            <p>Prestasi</p>
+                        </a>
+                    </li>
+                    
+                    <li class="nav-item">
+                        <a href="{{ route('ortu.sanksi') }}" class="nav-link {{ request()->routeIs('ortu.sanksi') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-gavel"></i>
+                            <p>Sanksi</p>
+                        </a>
+                    </li>
+                    
+                    <li class="nav-item">
+                        <a href="{{ route('ortu.bimbingan') }}" class="nav-link {{ request()->routeIs('ortu.bimbingan') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-comments"></i>
+                            <p>Bimbingan Konseling</p>
+                        </a>
+                    </li>
+                    
+                    <li class="nav-header">KOMUNIKASI</li>
+                    
+                    <li class="nav-item">
+                        <a href="{{ route('komunikasi.index') }}" class="nav-link {{ request()->routeIs('komunikasi.*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-envelope"></i>
+                            <p>Komunikasi Sekolah</p>
+                        </a>
+                    </li>
+                    @endif
+
+                    @if(auth()->check() && auth()->user()->role === 'bk')
+                    <li class="nav-header">BIMBINGAN KONSELING</li>
+                    
+                    <li class="nav-item">
+                        <a href="{{ route('bk.index') }}" class="nav-link {{ request()->routeIs('bk.*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-comments"></i>
+                            <p>Sesi BK</p>
+                        </a>
+                    </li>
+                    
+                    <li class="nav-item">
+                        <a href="{{ route('siswa.index') }}" class="nav-link {{ request()->routeIs('siswa.*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-user-graduate"></i>
+                            <p>Data Siswa</p>
+                        </a>
+                    </li>
+                    
+                    <li class="nav-item">
+                        <a href="{{ route('pelanggaran.index') }}" class="nav-link {{ request()->routeIs('pelanggaran.*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-exclamation-triangle"></i>
+                            <p>Pelanggaran Siswa</p>
+                        </a>
+                    </li>
+                    
+                    <li class="nav-item">
+                        <a href="{{ route('prestasi.index') }}" class="nav-link {{ request()->routeIs('prestasi.*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-trophy"></i>
+                            <p>Prestasi Siswa</p>
+                        </a>
+                    </li>
+                    
+                    <li class="nav-item">
+                        <a href="{{ route('sanksi.index') }}" class="nav-link {{ request()->routeIs('sanksi.*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-gavel"></i>
+                            <p>Sanksi</p>
+                        </a>
+                    </li>
+                    @endif
+
+                    @if(auth()->check() && in_array(auth()->user()->role, ['admin', 'kesiswaan', 'kepala_sekolah']))
+                    <li class="nav-header">DATA MASTER</li>
+                    
+                    @if(in_array(auth()->user()->role, ['admin', 'kesiswaan']))
+                    <li class="nav-item">
+                        <a href="{{ route('siswa.index') }}" class="nav-link {{ request()->routeIs('siswa.*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-user-graduate"></i>
+                            <p>Data Siswa</p>
                         </a>
                     </li>
                     
                     <li class="nav-item">
                         <a href="{{ route('guru.index') }}" class="nav-link {{ request()->routeIs('guru.*') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-chalkboard-teacher"></i>
-                            <p>Guru</p>
+                            <p>Data Guru</p>
                         </a>
                     </li>
                     
                     <li class="nav-item">
-                        <a href="{{ route('jenis-pelanggaran.index') }}" class="nav-link {{ request()->routeIs('jenis-pelanggaran.*') ? 'active' : '' }}">
-                            <i class="nav-icon fas fa-exclamation-triangle"></i>
-                            <p>Jenis Pelanggaran</p>
-                        </a>
-                    </li>
-                    
-                    <li class="nav-item">
-                        <a href="{{ route('jenis-prestasi.index') }}" class="nav-link {{ request()->routeIs('jenis-prestasi.*') ? 'active' : '' }}">
-                            <i class="nav-icon fas fa-medal"></i>
-                            <p>Jenis Prestasi</p>
+                        <a href="{{ route('kelas.index') }}" class="nav-link {{ request()->routeIs('kelas.*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-school"></i>
+                            <p>Data Kelas</p>
                         </a>
                     </li>
                     
@@ -267,36 +341,53 @@
                             <p>Tahun Ajaran</p>
                         </a>
                     </li>
-                    @endif
-
-                    @if(auth()->check() && in_array(auth()->user()->role, ['admin', 'kesiswaan', 'guru', 'wali_kelas', 'bk', 'kepala_sekolah']))
-                    <li class="nav-header">KELOLA</li>
                     
                     <li class="nav-item">
-                        <a href="/pelanggaran" class="nav-link {{ request()->is('pelanggaran*') ? 'active' : '' }}">
-                            <i class="nav-icon fas fa-ban"></i>
+                        <a href="{{ route('jenis-pelanggaran.index') }}" class="nav-link {{ request()->routeIs('jenis-pelanggaran.*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-list"></i>
+                            <p>Jenis Pelanggaran</p>
+                        </a>
+                    </li>
+                    
+                    <li class="nav-item">
+                        <a href="{{ route('jenis-prestasi.index') }}" class="nav-link {{ request()->routeIs('jenis-prestasi.*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-star"></i>
+                            <p>Jenis Prestasi</p>
+                        </a>
+                    </li>
+                    
+                    <li class="nav-item">
+                        <a href="{{ route('biodata-ortu.index') }}" class="nav-link {{ request()->routeIs('biodata-ortu.*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-users"></i>
+                            <p>Orang Tua</p>
+                        </a>
+                    </li>
+                    @endif
+                    
+                    <li class="nav-header">KELOLA</li>
+                    
+                    @if(in_array(auth()->user()->role, ['admin', 'kesiswaan']))
+                    <li class="nav-item">
+                        <a href="{{ route('pelanggaran.index') }}" class="nav-link {{ request()->routeIs('pelanggaran.*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-exclamation-triangle"></i>
                             <p>Pelanggaran</p>
                         </a>
                     </li>
                     
                     <li class="nav-item">
-                        <a href="/prestasi" class="nav-link {{ request()->is('prestasi*') ? 'active' : '' }}">
+                        <a href="{{ route('prestasi.index') }}" class="nav-link {{ request()->routeIs('prestasi.*') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-trophy"></i>
                             <p>Prestasi</p>
                         </a>
                     </li>
-                    @endif
-
-                    @if(auth()->check() && in_array(auth()->user()->role, ['admin', 'kesiswaan', 'kepala_sekolah']))
+                    
                     <li class="nav-item">
                         <a href="{{ route('sanksi.index') }}" class="nav-link {{ request()->routeIs('sanksi.*') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-gavel"></i>
                             <p>Sanksi</p>
                         </a>
                     </li>
-                    @endif
-
-                    @if(auth()->check() && in_array(auth()->user()->role, ['admin', 'kesiswaan', 'wali_kelas', 'bk', 'kepala_sekolah']))
+                    
                     <li class="nav-item">
                         <a href="{{ route('bk.index') }}" class="nav-link {{ request()->routeIs('bk.*') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-comments"></i>
@@ -304,98 +395,50 @@
                         </a>
                     </li>
                     @endif
-
-                    @if(auth()->check() && auth()->user()->is_wali_kelas)
-                    <li class="nav-header">WALI KELAS</li>
                     
-                    <li class="nav-item">
-                        <a href="{{ route('wali-kelas.dashboard') }}" class="nav-link {{ request()->routeIs('wali-kelas.dashboard') ? 'active' : '' }}">
-                            <i class="nav-icon fas fa-chalkboard-teacher"></i>
-                            <p>Dashboard Kelas</p>
-                        </a>
-                    </li>
-                    
-                    <li class="nav-item">
-                        <a href="{{ route('wali-kelas.siswa') }}" class="nav-link {{ request()->routeIs('wali-kelas.siswa*') ? 'active' : '' }}">
-                            <i class="nav-icon fas fa-users"></i>
-                            <p>Siswa Kelas</p>
-                        </a>
-                    </li>
-                    
-                    <li class="nav-item">
-                        <a href="{{ route('wali-kelas.pelanggaran.create') }}" class="nav-link {{ request()->routeIs('wali-kelas.pelanggaran.*') ? 'active' : '' }}">
-                            <i class="nav-icon fas fa-ban"></i>
-                            <p>Input Pelanggaran</p>
-                        </a>
-                    </li>
-                    
-                    <li class="nav-item">
-                        <a href="{{ route('wali-kelas.prestasi.create') }}" class="nav-link {{ request()->routeIs('wali-kelas.prestasi.*') ? 'active' : '' }}">
-                            <i class="nav-icon fas fa-medal"></i>
-                            <p>Input Prestasi</p>
-                        </a>
-                    </li>
-                    
-                    <li class="nav-item">
-                        <a href="{{ route('wali-kelas.komunikasi') }}" class="nav-link {{ request()->routeIs('wali-kelas.komunikasi') ? 'active' : '' }}">
-                            <i class="nav-icon fas fa-comments"></i>
-                            <p>Komunikasi Ortu</p>
-                        </a>
-                    </li>
-                    @endif
-
-                    @if(auth()->check() && in_array(auth()->user()->role, ['kesiswaan', 'wali_kelas', 'bk']))
-                    <li class="nav-item">
-                        <a href="{{ route('komunikasi.index') }}" class="nav-link {{ request()->routeIs('komunikasi.*') && !request()->is('komunikasi/panggilan*') ? 'active' : '' }}">
-                            <i class="nav-icon fas fa-envelope"></i>
-                            <p>Pesan & Pembinaan</p>
-                        </a>
-                    </li>
-                    
-                    <li class="nav-item">
-                        <a href="{{ route('komunikasi.panggilan') }}" class="nav-link {{ request()->is('komunikasi/panggilan*') ? 'active' : '' }}">
-                            <i class="nav-icon fas fa-bell"></i>
-                            <p>Panggilan Ortu</p>
-                        </a>
-                    </li>
-                    @endif
-                    
-                    @if(auth()->check() && auth()->user()->role === 'ortu')
-                    <li class="nav-item">
-                        <a href="{{ route('komunikasi.index') }}" class="nav-link {{ request()->routeIs('komunikasi.*') ? 'active' : '' }}">
-                            <i class="nav-icon fas fa-envelope"></i>
-                            <p>Pesan & Pembinaan</p>
-                            @php
-                                $unreadCount = \App\Models\KomunikasiOrtu::where('penerima_id', auth()->id())
-                                    ->where('status', 'terkirim')->count();
-                                $panggilanCount = \App\Models\PanggilanOrtu::whereHas('siswa.biodataOrtu', function($q) {
-                                    $q->where('user_id', auth()->id());
-                                })->where('status', 'menunggu')->count();
-                                $totalBadge = $unreadCount + $panggilanCount;
-                            @endphp
-                            @if($totalBadge > 0)
-                            <span class="badge badge-warning right">{{ $totalBadge }}</span>
-                            @endif
-                        </a>
-                    </li>
-                    @endif
-
                     @if(auth()->check() && in_array(auth()->user()->role, ['admin', 'kesiswaan', 'kepala_sekolah']))
                     <li class="nav-header">LAPORAN</li>
                     
+                    @if(auth()->user()->role === 'kepala_sekolah')
+                    <li class="nav-item">
+                        <a href="{{ route('kepala-sekolah.monitoring-pelanggaran') }}" class="nav-link {{ request()->routeIs('kepala-sekolah.monitoring-pelanggaran') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-exclamation-circle"></i>
+                            <p>Monitoring Pelanggaran</p>
+                        </a>
+                    </li>
+                    
+                    <li class="nav-item">
+                        <a href="{{ route('kepala-sekolah.monitoring-sanksi') }}" class="nav-link {{ request()->routeIs('kepala-sekolah.monitoring-sanksi') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-gavel"></i>
+                            <p>Monitoring Sanksi</p>
+                        </a>
+                    </li>
+                    
+                    <li class="nav-item">
+                        <a href="{{ route('kepala-sekolah.monitoring-prestasi') }}" class="nav-link {{ request()->routeIs('kepala-sekolah.monitoring-prestasi') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-trophy"></i>
+                            <p>Monitoring Prestasi</p>
+                        </a>
+                    </li>
+                    
+                    <li class="nav-item">
+                        <a href="{{ route('kepala-sekolah.laporan-executive') }}" class="nav-link {{ request()->routeIs('kepala-sekolah.laporan-executive') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-file-alt"></i>
+                            <p>Laporan Executive</p>
+                        </a>
+                    </li>
+                    @endif
+                    
+                    @if(in_array(auth()->user()->role, ['admin', 'kesiswaan']))
                     <li class="nav-item">
                         <a href="{{ route('laporan.index') }}" class="nav-link {{ request()->routeIs('laporan.*') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-file-pdf"></i>
                             <p>Export Laporan</p>
                         </a>
                     </li>
+                    @endif
                     
-                    <li class="nav-item">
-                        <a href="{{ route('biodata-ortu.index') }}" class="nav-link {{ request()->routeIs('biodata-ortu.*') ? 'active' : '' }}">
-                            <i class="nav-icon fas fa-user-check"></i>
-                            <p>Approval Biodata Ortu</p>
-                        </a>
-                    </li>
+
                     @endif
 
                     @if(auth()->check() && auth()->user()->role === 'admin')
@@ -428,6 +471,7 @@
                             <p>Backup System</p>
                         </a>
                     </li>
+                    @endif
                     @endif
 
                 </ul>
@@ -550,6 +594,56 @@ $('form').on('submit', function(e) {
     setTimeout(function() {
         formSubmitting = false;
     }, 3000);
+});
+
+// Prevent browser auto-fill for email and password fields
+$(document).ready(function() {
+    // Add autocomplete=off to forms that shouldn't be auto-filled
+    $('form').each(function() {
+        const form = $(this);
+        const hasEmailOrPassword = form.find('input[type="email"], input[type="password"]').length > 0;
+        
+        if (hasEmailOrPassword) {
+            // Add autocomplete=off to the form itself
+            form.attr('autocomplete', 'off');
+            
+            // Clear auto-filled values immediately
+            form.find('input[type="email"], input[type="password"]').each(function() {
+                const input = $(this);
+                if (input.val() === 'admin@test.com' || input.val() === 'password') {
+                    input.val('');
+                }
+            });
+        }
+    });
+    
+    // Clear auto-filled values on page load with delay
+    setTimeout(function() {
+        $('input[type="email"], input[type="password"]').each(function() {
+            const input = $(this);
+            if (input.val() === 'admin@test.com' || input.val() === 'password') {
+                input.val('');
+                input.trigger('change');
+            }
+        });
+    }, 500);
+    
+    // Monitor for auto-fill changes with more aggressive clearing
+    $('input[type="email"], input[type="password"]').on('input change keyup paste', function() {
+        const input = $(this);
+        if (input.val() === 'admin@test.com' || input.val() === 'password') {
+            setTimeout(function() {
+                input.val('');
+            }, 10);
+        }
+    });
+    
+    // Prevent browser from storing form data
+    $('form').on('submit', function() {
+        $(this).find('input[type="email"], input[type="password"]').each(function() {
+            $(this).attr('autocomplete', 'off');
+        });
+    });
 });
 </script>
 

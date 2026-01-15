@@ -17,21 +17,21 @@
                 @csrf
                 <input type="hidden" name="token" value="{{ $token }}">
                 <div class="input-group mb-3">
-                    <input type="email" name="email" class="form-control" placeholder="Email" value="{{ $email ?? old('email') }}" required>
+                    <input type="email" name="email" class="form-control" placeholder="Email" value="{{ $email ?? old('email') }}" autocomplete="username" required>
                     <div class="input-group-append">
                         <div class="input-group-text"><span class="fas fa-envelope"></span></div>
                     </div>
                 </div>
 
                 <div class="input-group mb-3">
-                    <input type="password" name="password" class="form-control" placeholder="Password baru" required>
+                    <input type="password" name="password" class="form-control" placeholder="Password baru" autocomplete="new-password" required>
                     <div class="input-group-append">
                         <div class="input-group-text"><span class="fas fa-lock"></span></div>
                     </div>
                 </div>
 
                 <div class="input-group mb-3">
-                    <input type="password" name="password_confirmation" class="form-control" placeholder="Konfirmasi password" required>
+                    <input type="password" name="password_confirmation" class="form-control" placeholder="Konfirmasi password" autocomplete="new-password" required>
                     <div class="input-group-append">
                         <div class="input-group-text"><span class="fas fa-lock"></span></div>
                     </div>

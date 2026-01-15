@@ -13,26 +13,32 @@ class UserController extends Controller
 
     public function index(Request $request)
     {
-        if (!Auth::check() || Auth::user()->role !== 'admin') {
-            abort(403, 'Hanya admin yang dapat mengakses halaman ini');
+        try {
+            if (!Auth::check() || Auth::user()->role !== 'admin') {
+                abort(403, 'Hanya admin yang dapat mengakses halaman ini');
+            }
+            
+            $query = User::query();
+            
+            if ($request->role) {
+                $query->where('role', $request->role);
+            }
+            
+            if ($request->nama) {
+                $query->where('nama', 'like', '%' . $request->nama . '%');
+            }
+            
+            if ($request->email) {
+                $query->where('email', 'like', '%' . $request->email . '%');
+            }
+            
+            $users = $query->orderByRaw('last_login_at IS NULL, last_login_at DESC')->paginate(10);
+            return view('users.index', compact('users'));
+        } catch (\Exception $e) {
+            \Log::error('Error in UserController@index: ' . $e->getMessage());
+            return view('users.index', ['users' => collect()->paginate(10)])
+                ->with('error', 'Terjadi kesalahan saat memuat data user.');
         }
-        
-        $query = User::query();
-        
-        if ($request->role) {
-            $query->where('role', $request->role);
-        }
-        
-        if ($request->nama) {
-            $query->where('nama', 'like', '%' . $request->nama . '%');
-        }
-        
-        if ($request->email) {
-            $query->where('email', 'like', '%' . $request->email . '%');
-        }
-        
-        $users = $query->orderByRaw('last_login_at IS NULL, last_login_at DESC')->paginate(10);
-        return view('users.index', compact('users'));
     }
 
     public function create()
@@ -78,7 +84,13 @@ class UserController extends Controller
 
     public function edit(User $user)
     {
-        return view('users.edit', compact('user'));
+        try {
+            return view('users.edit', compact('user'));
+        } catch (\Exception $e) {
+            \Log::error('Error in UserController@edit: ' . $e->getMessage());
+            return redirect()->route('users.index')
+                ->with('error', 'Terjadi kesalahan saat membuka halaman edit user.');
+        }
     }
 
     public function update(Request $request, User $user)

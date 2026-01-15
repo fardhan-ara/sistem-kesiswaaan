@@ -9,18 +9,24 @@ class TahunAjaranController extends Controller
 {
     public function index(Request $request)
     {
-        $query = TahunAjaran::query();
-        
-        if ($request->status_aktif) {
-            $query->where('status_aktif', $request->status_aktif);
+        try {
+            $query = TahunAjaran::query();
+            
+            if ($request->status_aktif) {
+                $query->where('status_aktif', $request->status_aktif);
+            }
+            
+            if ($request->semester) {
+                $query->where('semester', $request->semester);
+            }
+            
+            $tahunAjarans = $query->latest()->paginate(10);
+            return view('tahun-ajaran.index', compact('tahunAjarans'));
+        } catch (\Exception $e) {
+            \Log::error('Error in TahunAjaranController@index: ' . $e->getMessage());
+            return view('tahun-ajaran.index', ['tahunAjarans' => collect()->paginate(10)])
+                ->with('error', 'Terjadi kesalahan saat memuat data tahun ajaran.');
         }
-        
-        if ($request->semester) {
-            $query->where('semester', $request->semester);
-        }
-        
-        $tahunAjarans = $query->latest()->paginate(10);
-        return view('tahun-ajaran.index', compact('tahunAjarans'));
     }
 
     public function create()
@@ -55,7 +61,13 @@ class TahunAjaranController extends Controller
 
     public function edit(TahunAjaran $tahunAjaran)
     {
-        return view('tahun-ajaran.edit', compact('tahunAjaran'));
+        try {
+            return view('tahun-ajaran.edit', compact('tahunAjaran'));
+        } catch (\Exception $e) {
+            \Log::error('Error in TahunAjaranController@edit: ' . $e->getMessage());
+            return redirect()->route('tahun-ajaran.index')
+                ->with('error', 'Terjadi kesalahan saat membuka halaman edit tahun ajaran.');
+        }
     }
 
     public function update(Request $request, TahunAjaran $tahunAjaran)

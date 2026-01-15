@@ -45,7 +45,7 @@
 
                     <div class="form-group">
                         <label for="email">Email <span class="text-danger">*</span></label>
-                        <input type="email" class="form-control @error('email') is-invalid @enderror" id="email" name="email" value="{{ old('email', $user->email) }}" required>
+                        <input type="email" class="form-control @error('email') is-invalid @enderror" id="email" name="email" value="{{ old('email', $user->email) }}" autocomplete="username" required>
                         @error('email')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -65,7 +65,7 @@
 
                     <div class="form-group">
                         <label for="password">Password Baru</label>
-                        <input type="password" class="form-control @error('password') is-invalid @enderror" id="password" name="password">
+                        <input type="password" class="form-control @error('password') is-invalid @enderror" id="password" name="password" autocomplete="new-password">
                         @error('password')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -74,7 +74,7 @@
 
                     <div class="form-group">
                         <label for="password_confirmation">Konfirmasi Password Baru</label>
-                        <input type="password" class="form-control" id="password_confirmation" name="password_confirmation">
+                        <input type="password" class="form-control" id="password_confirmation" name="password_confirmation" autocomplete="new-password">
                     </div>
 
                     <div class="alert alert-info">

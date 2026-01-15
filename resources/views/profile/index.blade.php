@@ -26,7 +26,7 @@
                         @case('bk') <span class="badge badge-warning">BK</span> @break
                         @case('ortu') <span class="badge badge-secondary">Orang Tua</span> @break
                         @case('kesiswaan') <span class="badge badge-info">Kesiswaan</span> @break
-                        @case('kepala_sekolah') <span class="badge badge-danger">Kepala Sekolah</span> @break
+                        @case('kepala_sekolah') <span class="badge badge-danger">z Sekolah</span> @break
                     @endswitch
                 </p>
 

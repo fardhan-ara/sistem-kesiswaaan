@@ -64,7 +64,35 @@ class PrestasiController extends Controller
             $tingkats = JenisPrestasi::select('tingkat')->distinct()->pluck('tingkat');
             $kelass = \App\Models\Kelas::orderBy('nama_kelas')->get();
             
-            return view('prestasi.index', compact('prestasis', 'tingkats', 'kelass'));
+            // Statistik untuk chart
+            $statistik = [
+                'total' => Prestasi::count(),
+                'pending' => Prestasi::where('status_verifikasi', 'pending')->count(),
+                'verified' => Prestasi::where('status_verifikasi', 'verified')->count(),
+                'rejected' => Prestasi::where('status_verifikasi', 'rejected')->count(),
+            ];
+            
+            // Data chart per bulan (6 bulan terakhir)
+            $chartData = [];
+            $chartLabels = [];
+            for ($i = 5; $i >= 0; $i--) {
+                $bulan = now()->subMonths($i);
+                $chartLabels[] = $bulan->format('M Y');
+                $chartData[] = Prestasi::whereYear('created_at', $bulan->year)
+                    ->whereMonth('created_at', $bulan->month)
+                    ->count();
+            }
+            
+            // Top 5 jenis prestasi
+            $topJenisPrestasi = \DB::table('prestasis')
+                ->join('jenis_prestasis', 'prestasis.jenis_prestasi_id', '=', 'jenis_prestasis.id')
+                ->select('jenis_prestasis.nama_prestasi', \DB::raw('count(*) as total'))
+                ->groupBy('jenis_prestasis.nama_prestasi')
+                ->orderBy('total', 'desc')
+                ->limit(5)
+                ->get();
+            
+            return view('prestasi.index', compact('prestasis', 'tingkats', 'kelass', 'statistik', 'chartData', 'chartLabels', 'topJenisPrestasi'));
         } catch (\Exception $e) {
             \Log::error('Prestasi Index Error: ' . $e->getMessage());
             return redirect()->route('dashboard')->with('error', 'Gagal memuat halaman prestasi: ' . $e->getMessage());
@@ -195,43 +223,25 @@ class PrestasiController extends Controller
 
     public function update(Request $request, Prestasi $prestasi)
     {
-        $request->validate([
-            'keterangan' => 'nullable|string',
-            'prestasi_tambahan' => 'nullable|array',
-            'prestasi_tambahan.*' => 'exists:jenis_prestasis,id'
+        $validated = $request->validate([
+            'jenis_prestasi_id' => 'required|exists:jenis_prestasis,id',
+            'keterangan' => 'nullable|string|max:1000',
+            'tanggal_prestasi' => 'required|date|before_or_equal:today'
         ]);
 
         try {
+            $jenisPrestasi = JenisPrestasi::findOrFail($validated['jenis_prestasi_id']);
+            
             $prestasi->update([
-                'keterangan' => $request->keterangan
+                'jenis_prestasi_id' => $validated['jenis_prestasi_id'],
+                'poin' => $jenisPrestasi->poin_reward,
+                'keterangan' => $validated['keterangan'],
+                'tanggal_prestasi' => $validated['tanggal_prestasi']
             ]);
             
-            $jumlahTambahan = 0;
-            if ($request->has('prestasi_tambahan') && is_array($request->prestasi_tambahan)) {
-                foreach ($request->prestasi_tambahan as $jenisId) {
-                    $jenisPrestasi = JenisPrestasi::find($jenisId);
-                    
-                    Prestasi::create([
-                        'siswa_id' => $prestasi->siswa_id,
-                        'guru_pencatat' => $prestasi->guru_pencatat,
-                        'jenis_prestasi_id' => $jenisId,
-                        'tahun_ajaran_id' => $prestasi->tahun_ajaran_id,
-                        'poin' => $jenisPrestasi->poin_reward,
-                        'tanggal_prestasi' => now(),
-                        'status_verifikasi' => 'pending'
-                    ]);
-                    $jumlahTambahan++;
-                }
-            }
-
-            $message = 'Data prestasi berhasil diupdate';
-            if ($jumlahTambahan > 0) {
-                $message .= ' dan ' . $jumlahTambahan . ' prestasi baru ditambahkan';
-            }
-            
-            return redirect()->route('prestasi.index')->with('success', $message);
+            return redirect()->route('prestasi.index')->with('success', 'Data prestasi berhasil diupdate!');
         } catch (\Exception $e) {
-            return redirect()->route('prestasi.index')->with('error', 'Gagal: ' . $e->getMessage());
+            return redirect()->back()->withInput()->with('error', 'Gagal update: ' . $e->getMessage());
         }
     }
 

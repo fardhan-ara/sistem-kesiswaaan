@@ -128,11 +128,15 @@
                                 </td>
                                 <td>
                                     @if($user->last_login_at)
-                                        <span title="{{ $user->last_login_at->format('d/m/Y H:i:s') }}">
-                                            {{ $user->last_login_at->diffForHumans() }}
+                                        @php
+                                            $lastLogin = is_string($user->last_login_at) ? \Carbon\Carbon::parse($user->last_login_at) : $user->last_login_at;
+                                        @endphp
+                                        <span title="{{ $lastLogin->format('d/m/Y H:i:s') }}">
+                                            {{ $lastLogin->diffForHumans() }}
                                         </span>
                                         @php
-                                            $isOnline = $user->last_activity_at && $user->last_activity_at->diffInMinutes(now()) < 5;
+                                            $lastActivity = $user->last_activity_at ? (is_string($user->last_activity_at) ? \Carbon\Carbon::parse($user->last_activity_at) : $user->last_activity_at) : null;
+                                            $isOnline = $lastActivity && $lastActivity->diffInMinutes(now()) < 5;
                                         @endphp
                                         @if($isOnline)
                                             <br><span class="badge badge-success"><i class="fas fa-circle"></i> Online</span>
@@ -141,7 +145,16 @@
                                         <span class="text-muted">Belum pernah login</span>
                                     @endif
                                 </td>
-                                <td>{{ $user->created_at->format('d/m/Y H:i') }}</td>
+                                <td>
+                                    @if($user->created_at)
+                                        @php
+                                            $createdAt = is_string($user->created_at) ? \Carbon\Carbon::parse($user->created_at) : $user->created_at;
+                                        @endphp
+                                        {{ $createdAt->format('d/m/Y H:i') }}
+                                    @else
+                                        <span class="text-muted">-</span>
+                                    @endif
+                                </td>
                                 <td>
                                     @if(($user->status ?? 'approved') === 'pending')
                                         <button type="button" class="btn btn-success btn-sm" title="Setujui" 

@@ -3,7 +3,88 @@
 @section('title', 'Data Pelanggaran')
 @section('page-title', 'Data Pelanggaran')
 
+@push('styles')
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+@endpush
+
 @section('content')
+<!-- Statistik Cards -->
+<div class="row mb-3">
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-info">
+            <div class="inner">
+                <h3>{{ $statistik['total'] }}</h3>
+                <p>Total Pelanggaran</p>
+            </div>
+            <div class="icon"><i class="fas fa-list"></i></div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-warning">
+            <div class="inner">
+                <h3>{{ $statistik['menunggu'] }}</h3>
+                <p>Menunggu Verifikasi</p>
+            </div>
+            <div class="icon"><i class="fas fa-clock"></i></div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-success">
+            <div class="inner">
+                <h3>{{ $statistik['terverifikasi'] }}</h3>
+                <p>Terverifikasi</p>
+            </div>
+            <div class="icon"><i class="fas fa-check"></i></div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-danger">
+            <div class="inner">
+                <h3>{{ $statistik['ditolak'] }}</h3>
+                <p>Ditolak</p>
+            </div>
+            <div class="icon"><i class="fas fa-times"></i></div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row mb-3">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-chart-line mr-1"></i> Trend Pelanggaran (6 Bulan Terakhir)</h3>
+            </div>
+            <div class="card-body">
+                <canvas id="trendChart" height="100"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-chart-pie mr-1"></i> Top 5 Jenis Pelanggaran</h3>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-sm mb-0">
+                        <tbody>
+                            @foreach($topJenisPelanggaran as $index => $jenis)
+                            <tr>
+                                <td width="5%">{{ $index + 1 }}</td>
+                                <td>{{ $jenis->nama_pelanggaran }}</td>
+                                <td width="20%" class="text-right">
+                                    <span class="badge badge-primary">{{ $jenis->total }}</span>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 <div class="card">
     <div class="card-header">
         <h3 class="card-title">Daftar Pelanggaran</h3>
@@ -128,7 +209,7 @@
                             </div>
                             @if(in_array(auth()->user()->role, ['admin', 'kesiswaan']) && $pelanggaran->status_verifikasi == 'menunggu')
                                 <div class="btn-group btn-group-sm mt-1" role="group">
-                                    <form action="/pelanggaran-verify-test/{{ $pelanggaran->id }}" method="POST" class="d-inline">
+                                    <form action="{{ route('pelanggaran.verify', $pelanggaran) }}" method="POST" class="d-inline">
                                         @csrf
                                         <button type="submit" class="btn btn-success" title="Setuju">
                                             <i class="fas fa-check"></i>
@@ -177,15 +258,55 @@
 
 @push('scripts')
 <script>
-$(document).ready(function() {
-    $.get('/pelanggaran/' + id, function(data) {
-        $('#detailContent').html(data);
-        $('#detailModal').modal('show');
-    }).fail(function() {
-        $('#detailContent').html('<div class="alert alert-danger">Gagal memuat data</div>');
-        $('#detailModal').modal('show');
+// Trend Chart
+const trendCtx = document.getElementById('trendChart');
+if (trendCtx) {
+    new Chart(trendCtx, {
+        type: 'line',
+        data: {
+            labels: {!! json_encode($chartLabels) !!},
+            datasets: [{
+                label: 'Jumlah Pelanggaran',
+                data: {!! json_encode($chartData) !!},
+                borderColor: 'rgb(220, 53, 69)',
+                backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1,
+                        precision: 0
+                    }
+                }
+            }
+        }
     });
 }
+
+$(document).ready(function() {
+    // Fix untuk viewDetail function
+    window.viewDetail = function(id) {
+        $.get('/pelanggaran/' + id, function(data) {
+            $('#detailContent').html(data);
+            $('#detailModal').modal('show');
+        }).fail(function() {
+            $('#detailContent').html('<div class="alert alert-danger">Gagal memuat data</div>');
+            $('#detailModal').modal('show');
+        });
+    };
+});
 
 function rejectPelanggaran(id) {
     Swal.fire({
@@ -205,7 +326,7 @@ function rejectPelanggaran(id) {
         if (result.isConfirmed) {
             const form = document.createElement('form');
             form.method = 'POST';
-            form.action = '/pelanggaran-reject-test/' + id;
+            form.action = '/pelanggaran/' + id + '/reject';
             form.innerHTML = '@csrf<input type="hidden" name="alasan_penolakan" value="' + result.value + '">';
             document.body.appendChild(form);
             form.submit();

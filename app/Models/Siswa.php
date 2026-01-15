@@ -42,6 +42,11 @@ class Siswa extends Model
         return $this->hasMany(Prestasi::class);
     }
 
+    public function sanksis()
+    {
+        return $this->hasMany(Sanksi::class);
+    }
+
     public function biodataOrtu()
     {
         return $this->hasOne(BiodataOrtu::class);

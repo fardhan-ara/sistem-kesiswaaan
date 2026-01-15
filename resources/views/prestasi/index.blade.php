@@ -3,7 +3,88 @@
 @section('title', 'Data Prestasi')
 @section('page-title', 'Data Prestasi')
 
+@push('styles')
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+@endpush
+
 @section('content')
+<!-- Statistik Cards -->
+<div class="row mb-3">
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-info">
+            <div class="inner">
+                <h3>{{ $statistik['total'] }}</h3>
+                <p>Total Prestasi</p>
+            </div>
+            <div class="icon"><i class="fas fa-trophy"></i></div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-warning">
+            <div class="inner">
+                <h3>{{ $statistik['pending'] }}</h3>
+                <p>Menunggu Verifikasi</p>
+            </div>
+            <div class="icon"><i class="fas fa-clock"></i></div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-success">
+            <div class="inner">
+                <h3>{{ $statistik['verified'] }}</h3>
+                <p>Terverifikasi</p>
+            </div>
+            <div class="icon"><i class="fas fa-check"></i></div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-danger">
+            <div class="inner">
+                <h3>{{ $statistik['rejected'] }}</h3>
+                <p>Ditolak</p>
+            </div>
+            <div class="icon"><i class="fas fa-times"></i></div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row mb-3">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-chart-line mr-1"></i> Trend Prestasi (6 Bulan Terakhir)</h3>
+            </div>
+            <div class="card-body">
+                <canvas id="trendChart" height="100"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-list mr-1"></i> Top 5 Jenis Prestasi</h3>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-sm mb-0">
+                        <tbody>
+                            @foreach($topJenisPrestasi as $index => $jenis)
+                            <tr>
+                                <td width="5%">{{ $index + 1 }}</td>
+                                <td>{{ $jenis->nama_prestasi }}</td>
+                                <td width="20%" class="text-right">
+                                    <span class="badge badge-success">{{ $jenis->total }}</span>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 <div class="card">
     <div class="card-header">
         <h3 class="card-title"><i class="fas fa-trophy"></i> Daftar Prestasi Siswa</h3>
@@ -197,6 +278,43 @@
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+// Trend Chart
+const trendCtx = document.getElementById('trendChart');
+if (trendCtx) {
+    new Chart(trendCtx, {
+        type: 'line',
+        data: {
+            labels: {!! json_encode($chartLabels) !!},
+            datasets: [{
+                label: 'Jumlah Prestasi',
+                data: {!! json_encode($chartData) !!},
+                borderColor: 'rgb(40, 167, 69)',
+                backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1,
+                        precision: 0
+                    }
+                }
+            }
+        }
+    });
+}
+
 @if(session('success'))
     Swal.fire({
         icon: 'success',

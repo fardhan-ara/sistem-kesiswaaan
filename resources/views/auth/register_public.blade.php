@@ -140,19 +140,19 @@
 
                 <div class="mb-3">
                     <label class="form-label">Email</label>
-                    <input type="email" name="email" class="form-control @error('email') is-invalid @enderror" placeholder="Masukkan email" value="{{ old('email') }}" required>
+                    <input type="email" name="email" class="form-control @error('email') is-invalid @enderror" placeholder="Masukkan email" value="{{ old('email') }}" autocomplete="new-email" required>
                     @error('email')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label">Password</label>
-                    <input type="password" name="password" class="form-control @error('password') is-invalid @enderror" placeholder="Minimal 6 karakter" required minlength="6">
+                    <input type="password" name="password" class="form-control @error('password') is-invalid @enderror" placeholder="Minimal 6 karakter" autocomplete="new-password" required minlength="6">
                     @error('password')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label">Konfirmasi Password</label>
-                    <input type="password" name="password_confirmation" class="form-control" placeholder="Ulangi password" required minlength="6">
+                    <input type="password" name="password_confirmation" class="form-control" placeholder="Ulangi password" autocomplete="new-password" required minlength="6">
                 </div>
 
                 <button type="submit" class="btn btn-primary w-100" @if(isset($isLoggedIn) && $isLoggedIn) disabled @endif>Daftar</button>

@@ -35,7 +35,7 @@
                     <div class="form-group">
                         <label for="email">Email <span class="text-danger">*</span></label>
                         <input type="email" name="email" id="email" class="form-control @error('email') is-invalid @enderror" 
-                               value="{{ old('email', $user->email) }}" {{ $user->email === 'admin@test.com' ? 'readonly' : '' }} required>
+                               value="{{ old('email', $user->email) }}" autocomplete="new-email" {{ $user->email === 'admin@test.com' ? 'readonly' : '' }} required>
                         @error('email')
                         <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -91,7 +91,7 @@
 
                     <div class="form-group">
                         <label for="password">Password Baru</label>
-                        <input type="password" name="password" id="password" class="form-control @error('password') is-invalid @enderror">
+                        <input type="password" name="password" id="password" class="form-control @error('password') is-invalid @enderror" autocomplete="new-password">
                         @error('password')
                         <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -99,7 +99,7 @@
 
                     <div class="form-group">
                         <label for="password_confirmation">Konfirmasi Password Baru</label>
-                        <input type="password" name="password_confirmation" id="password_confirmation" class="form-control">
+                        <input type="password" name="password_confirmation" id="password_confirmation" class="form-control" autocomplete="new-password">
                     </div>
                 </div>
                 <div class="card-footer">

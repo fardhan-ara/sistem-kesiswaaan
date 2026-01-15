@@ -11,32 +11,41 @@ class KelasController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Kelas::with(['waliKelas', 'tahunAjaran']);
-        
-        if ($request->nama_kelas) {
-            $query->where('nama_kelas', 'like', '%' . $request->nama_kelas . '%');
+        try {
+            $query = Kelas::with(['waliKelas', 'tahunAjaran']);
+            
+            if ($request->nama_kelas) {
+                $query->where('nama_kelas', 'like', '%' . $request->nama_kelas . '%');
+            }
+            
+            if ($request->jurusan) {
+                $query->where('jurusan', 'like', '%' . $request->jurusan . '%');
+            }
+            
+            $kelas = $query->latest()->paginate(10);
+            return view('kelas.index', compact('kelas'));
+        } catch (\Exception $e) {
+            \Log::error('Error in KelasController@index: ' . $e->getMessage());
+            return view('kelas.index', ['kelas' => collect()->paginate(10)])
+                ->with('error', 'Terjadi kesalahan saat memuat data kelas.');
         }
-        
-        if ($request->jurusan) {
-            $query->where('jurusan', 'like', '%' . $request->jurusan . '%');
-        }
-        
-        $kelas = $query->latest()->paginate(10);
-        return view('kelas.index', compact('kelas'));
     }
 
     public function create()
     {
-        $gurus = Guru::with('user')
-            ->whereHas('user', function($query) {
-                $query->where(function($q) {
-                    $q->where('role', 'guru')
-                      ->orWhereJsonContains('additional_roles', 'guru');
-                });
-            })
-            ->get();
-        $tahunAjarans = TahunAjaran::all();
-        return view('kelas.create', compact('gurus', 'tahunAjarans'));
+        try {
+            $gurus = Guru::with('user')
+                ->whereHas('user', function($query) {
+                    $query->where('role', 'guru');
+                })
+                ->get();
+            $tahunAjarans = TahunAjaran::all();
+            return view('kelas.create', compact('gurus', 'tahunAjarans'));
+        } catch (\Exception $e) {
+            \Log::error('Error in KelasController@create: ' . $e->getMessage());
+            return redirect()->route('kelas.index')
+                ->with('error', 'Terjadi kesalahan saat membuka halaman tambah kelas.');
+        }
     }
 
     public function store(Request $request)
@@ -81,20 +90,22 @@ class KelasController extends Controller
 
     public function edit(Kelas $kelas)
     {
-        $gurus = Guru::with('user')
-            ->whereHas('user', function($query) {
-                $query->where(function($q) {
-                    $q->where('role', 'guru')
-                      ->orWhereJsonContains('additional_roles', 'guru');
-                });
-            })
-            ->where(function($query) use ($kelas) {
-                $query->where('id', $kelas->wali_kelas_id)
-                      ->orWhereDoesntHave('kelas');
-            })
-            ->get();
-        $tahunAjarans = TahunAjaran::all();
-        return view('kelas.edit', compact('kelas', 'gurus', 'tahunAjarans'));
+        try {
+            // Ambil semua guru dengan role guru
+            $gurus = Guru::with('user')
+                ->whereHas('user', function($query) {
+                    $query->where('role', 'guru');
+                })
+                ->get();
+            
+            $tahunAjarans = TahunAjaran::all();
+            
+            return view('kelas.edit', compact('kelas', 'gurus', 'tahunAjarans'));
+        } catch (\Exception $e) {
+            \Log::error('Error in KelasController@edit: ' . $e->getMessage());
+            return redirect()->route('kelas.index')
+                ->with('error', 'Terjadi kesalahan saat membuka halaman edit kelas.');
+        }
     }
 
     public function update(Request $request, Kelas $kelas)

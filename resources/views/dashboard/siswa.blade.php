@@ -190,7 +190,7 @@
                                 <td><span class="badge badge-danger">{{ $p->poin }}</span></td>
                                 <td>{{ $p->guru->nama_guru ?? '-' }}</td>
                                 <td>
-                                    @if($p->status_verifikasi == 'terverifikasi')
+                                    @if($p->status_verifikasi == 'diverifikasi')
                                         <span class="badge badge-success">Terverifikasi</span>
                                     @elseif($p->status_verifikasi == 'ditolak')
                                         <span class="badge badge-danger">Ditolak</span>
@@ -241,7 +241,7 @@
                                 <td><span class="badge badge-success">{{ $p->poin }}</span></td>
                                 <td>{{ $p->guru->nama_guru ?? '-' }}</td>
                                 <td>
-                                    @if($p->status_verifikasi == 'terverifikasi')
+                                    @if($p->status_verifikasi == 'verified')
                                         <span class="badge badge-success">Terverifikasi</span>
                                     @elseif($p->status_verifikasi == 'ditolak')
                                         <span class="badge badge-danger">Ditolak</span>

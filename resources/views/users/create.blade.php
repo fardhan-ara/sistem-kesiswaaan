@@ -28,7 +28,7 @@
                     <div class="form-group">
                         <label for="email">Email <span class="text-danger">*</span></label>
                         <input type="email" name="email" id="email" class="form-control @error('email') is-invalid @enderror" 
-                               value="{{ old('email') }}" required>
+                               value="{{ old('email') }}" autocomplete="new-email" required>
                         @error('email')
                         <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -39,7 +39,7 @@
                         <select name="role" id="role" class="form-control @error('role') is-invalid @enderror" required>
                             <option value="">Pilih Role</option>
                             <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Admin</option>
-                            <option value="kepala_sekolah" {{ old('role') == 'kepala_sekolah' ? 'selected' : '' }}>Kepala Sekolah</option>
+                            <option value="_sekolah" {{ old('role') == '_sekolah' ? 'selected' : '' }}> Sekolah</option>
                             <option value="kesiswaan" {{ old('role') == 'kesiswaan' ? 'selected' : '' }}>Kesiswaan</option>
                             <option value="bk" {{ old('role') == 'bk' ? 'selected' : '' }}>BK</option>
                             <option value="guru" {{ old('role') == 'guru' ? 'selected' : '' }}>Guru</option>
@@ -53,7 +53,7 @@
 
                     <div class="form-group">
                         <label for="password">Password <span class="text-danger">*</span></label>
-                        <input type="password" name="password" id="password" class="form-control @error('password') is-invalid @enderror" required>
+                        <input type="password" name="password" id="password" class="form-control @error('password') is-invalid @enderror" autocomplete="new-password" required>
                         @error('password')
                         <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -61,7 +61,7 @@
 
                     <div class="form-group">
                         <label for="password_confirmation">Konfirmasi Password <span class="text-danger">*</span></label>
-                        <input type="password" name="password_confirmation" id="password_confirmation" class="form-control" required>
+                        <input type="password" name="password_confirmation" id="password_confirmation" class="form-control" autocomplete="new-password" required>
                     </div>
                 </div>
                 <div class="card-footer">
@@ -87,7 +87,7 @@
             <div class="card-body">
                 <ul class="list-unstyled">
                     <li><strong>Admin:</strong> Akses penuh sistem</li>
-                    <li><strong>Kepala Sekolah:</strong> Akses hampir penuh seperti admin</li>
+                    <li><strong> Sekolah:</strong> Akses hampir penuh seperti admin</li>
                     <li><strong>Kesiswaan:</strong> Kelola data siswa, verifikasi</li>
                     <li><strong>BK:</strong> Bimbingan konseling siswa</li>
                     <li><strong>Guru:</strong> Input pelanggaran & prestasi</li>

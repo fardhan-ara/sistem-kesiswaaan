@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class TahunAjaran extends Model
 {
-    protected $fillable = ['tahun_ajaran', 'tahun_mulai', 'tahun_selesai', 'semester', 'status_aktif', 'status_approval'];
+    protected $fillable = ['tahun_mulai', 'tahun_selesai', 'semester', 'status_aktif', 'status_approval'];
 
     protected $appends = ['tahun_ajaran'];
 

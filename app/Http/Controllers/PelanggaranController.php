@@ -49,15 +49,37 @@ class PelanggaranController extends Controller
             
             $pelanggarans = $query->latest()->paginate(20);
             
-            // Statistik untuk chart
+            // Statistik untuk chart - sinkron dengan dashboard
             $statistik = [
                 'total' => Pelanggaran::count(),
                 'menunggu' => Pelanggaran::where('status_verifikasi', 'menunggu')->count(),
-                'terverifikasi' => Pelanggaran::where('status_verifikasi', 'terverifikasi')->count(),
+                'terverifikasi' => Pelanggaran::whereIn('status_verifikasi', ['diverifikasi', 'terverifikasi', 'verified'])->count(),
                 'ditolak' => Pelanggaran::where('status_verifikasi', 'ditolak')->count(),
             ];
             
-            return view('pelanggaran.index', compact('pelanggarans', 'statistik'));
+            // Data chart per bulan (6 bulan terakhir) - sinkron dengan dashboard
+            $chartData = [];
+            $chartLabels = [];
+            for ($i = 5; $i >= 0; $i--) {
+                $bulan = now()->subMonths($i);
+                $chartLabels[] = $bulan->format('M Y');
+                $chartData[] = Pelanggaran::whereYear('created_at', $bulan->year)
+                    ->whereMonth('created_at', $bulan->month)
+                    ->whereIn('status_verifikasi', ['diverifikasi', 'terverifikasi', 'verified'])
+                    ->count();
+            }
+            
+            // Top 5 jenis pelanggaran - sinkron dengan dashboard
+            $topJenisPelanggaran = \DB::table('pelanggarans')
+                ->join('jenis_pelanggarans', 'pelanggarans.jenis_pelanggaran_id', '=', 'jenis_pelanggarans.id')
+                ->select('jenis_pelanggarans.nama_pelanggaran', \DB::raw('count(*) as total'))
+                ->whereIn('pelanggarans.status_verifikasi', ['diverifikasi', 'terverifikasi', 'verified'])
+                ->groupBy('jenis_pelanggarans.nama_pelanggaran')
+                ->orderBy('total', 'desc')
+                ->limit(5)
+                ->get();
+            
+            return view('pelanggaran.index', compact('pelanggarans', 'statistik', 'chartData', 'chartLabels', 'topJenisPelanggaran'));
         } catch (\Exception $e) {
             \Log::error('Pelanggaran Index Error: ' . $e->getMessage());
             return redirect()->route('dashboard')->with('error', 'Gagal memuat halaman pelanggaran: ' . $e->getMessage());
@@ -174,55 +196,25 @@ class PelanggaranController extends Controller
 
     public function update(Request $request, Pelanggaran $pelanggaran)
     {
-        \Log::info('=== UPDATE PELANGGARAN START ===');
-        \Log::info('Request:', $request->all());
-        \Log::info('Pelanggaran ID:', ['id' => $pelanggaran->id]);
+        $validated = $request->validate([
+            'jenis_pelanggaran_id' => 'required|exists:jenis_pelanggarans,id',
+            'keterangan' => 'nullable|string|max:500',
+            'tanggal_pelanggaran' => 'required|date'
+        ]);
         
         try {
-            $validated = $request->validate([
-                'keterangan' => 'nullable|string',
-                'pelanggaran_tambahan' => 'nullable|array',
-                'pelanggaran_tambahan.*' => 'exists:jenis_pelanggarans,id'
-            ]);
-            
-            \Log::info('Validation passed');
+            $jenisPelanggaran = JenisPelanggaran::findOrFail($validated['jenis_pelanggaran_id']);
             
             $pelanggaran->update([
-                'keterangan' => $request->keterangan
+                'jenis_pelanggaran_id' => $validated['jenis_pelanggaran_id'],
+                'poin' => $jenisPelanggaran->poin,
+                'keterangan' => $validated['keterangan'],
+                'tanggal_pelanggaran' => $validated['tanggal_pelanggaran']
             ]);
-            \Log::info('Keterangan updated');
             
-            $jumlahTambahan = 0;
-            if ($request->has('pelanggaran_tambahan') && is_array($request->pelanggaran_tambahan)) {
-                \Log::info('Pelanggaran tambahan:', $request->pelanggaran_tambahan);
-                foreach ($request->pelanggaran_tambahan as $jenisId) {
-                    $jenisPelanggaran = JenisPelanggaran::find($jenisId);
-                    
-                    $newPelanggaran = Pelanggaran::create([
-                        'siswa_id' => $pelanggaran->siswa_id,
-                        'guru_pencatat' => $pelanggaran->guru_pencatat,
-                        'jenis_pelanggaran_id' => $jenisId,
-                        'tahun_ajaran_id' => $pelanggaran->tahun_ajaran_id,
-                        'poin' => $jenisPelanggaran->poin,
-                        'tanggal_pelanggaran' => now(),
-                        'status_verifikasi' => 'menunggu'
-                    ]);
-                    $jumlahTambahan++;
-                    \Log::info('Created new pelanggaran:', ['id' => $newPelanggaran->id, 'poin' => $jenisPelanggaran->poin]);
-                }
-            }
-
-            \Log::info('=== UPDATE SUCCESS ===');
-            $message = 'Data pelanggaran berhasil diupdate';
-            if ($jumlahTambahan > 0) {
-                $message .= ' dan ' . $jumlahTambahan . ' pelanggaran baru ditambahkan';
-            }
-            
-            return redirect()->route('pelanggaran.index')->with('success', $message);
+            return redirect()->route('pelanggaran.index')->with('success', 'Data pelanggaran berhasil diupdate!');
         } catch (\Exception $e) {
-            \Log::error('=== UPDATE ERROR ===');
-            \Log::error('Error:', ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
-            return redirect()->route('pelanggaran.index')->with('error', 'Gagal: ' . $e->getMessage());
+            return redirect()->back()->withInput()->with('error', 'Gagal update: ' . $e->getMessage());
         }
     }
 
@@ -238,25 +230,44 @@ class PelanggaranController extends Controller
 
     public function verify(Request $request, Pelanggaran $pelanggaran)
     {
+        \Log::info('=== VERIFY CALLED ===', [
+            'id' => $pelanggaran->id,
+            'user' => auth()->id(),
+            'role' => auth()->user()->role,
+            'status' => $pelanggaran->status_verifikasi
+        ]);
+        
         if (!in_array(auth()->user()->role, ['admin', 'kesiswaan'])) {
+            \Log::error('Unauthorized');
             abort(403, 'Unauthorized action.');
         }
 
+        if (in_array($pelanggaran->status_verifikasi, ['diverifikasi', 'terverifikasi'])) {
+            \Log::warning('Already verified');
+            return redirect()->back()->with('error', 'Pelanggaran sudah diverifikasi sebelumnya!');
+        }
+
         try {
+            \DB::beginTransaction();
+            
             $guru = \App\Models\Guru::where('users_id', auth()->id())->first();
             
-            $pelanggaran->update([
-                'status_verifikasi' => 'terverifikasi',
-                'guru_verifikator' => $guru ? $guru->id : null,
-                'tanggal_verifikasi' => now()
-            ]);
+            $pelanggaran->status_verifikasi = 'diverifikasi';
+            $pelanggaran->guru_verifikator = $guru ? $guru->id : null;
+            $pelanggaran->tanggal_verifikasi = now();
+            $pelanggaran->save();
             
-            // Cek total poin siswa untuk auto sanksi
+            \Log::info('Updated', ['new_status' => $pelanggaran->fresh()->status_verifikasi]);
+            
             $this->checkAndCreateSanksi($pelanggaran->siswa_id);
             
-            return redirect()->route('pelanggaran.index')->with('success', 'Pelanggaran berhasil disetujui!');
+            \DB::commit();
+            \Log::info('Committed');
+            return redirect()->back()->with('success', 'Pelanggaran berhasil disetujui!');
         } catch (\Exception $e) {
-            return redirect()->route('pelanggaran.index')->with('error', 'Gagal: ' . $e->getMessage());
+            \DB::rollBack();
+            \Log::error('Error: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal: ' . $e->getMessage());
         }
     }
 
@@ -276,7 +287,7 @@ class PelanggaranController extends Controller
                 'alasan_penolakan' => $request->alasan_penolakan
             ]);
             
-            return redirect()->route('pelanggaran.index')->with('success', 'Pelanggaran berhasil ditolak!');
+            return redirect()->back()->with('success', 'Pelanggaran berhasil ditolak!');
         } catch (\Exception $e) {
             return redirect()->route('pelanggaran.index')->with('error', 'Gagal: ' . $e->getMessage());
         }
@@ -294,16 +305,20 @@ class PelanggaranController extends Controller
                 ->first();
             
             if (!$sanksiAktif) {
+                $lastPelanggaran = Pelanggaran::where('siswa_id', $siswaId)
+                    ->whereIn('status_verifikasi', ['diverifikasi', 'terverifikasi'])
+                    ->latest()
+                    ->first();
+                
                 Sanksi::create([
                     'siswa_id' => $siswaId,
-                    'pelanggaran_id' => null,
-                    'nama_sanksi' => 'Sanksi Otomatis - Poin Pelanggaran >= 100',
-                    'kategori_poin' => 'sangat_berat',
-                    'total_poin' => $totalPoin,
+                    'pelanggaran_id' => $lastPelanggaran->id,
+                    'nama_sanksi' => 'Sanksi Otomatis - Poin >= 100',
+                    'jenis_sanksi' => 'Skorsing',
+                    'deskripsi_sanksi' => 'Sanksi otomatis karena total poin pelanggaran mencapai ' . $totalPoin . ' poin',
                     'tanggal_mulai' => now(),
                     'tanggal_selesai' => now()->addDays(14),
-                    'status_sanksi' => 'aktif',
-                    'keterangan' => 'Sanksi dibuat otomatis karena total poin pelanggaran mencapai ' . $totalPoin . ' poin'
+                    'status_sanksi' => 'aktif'
                 ]);
                 
                 \Log::info('Auto sanksi created', ['siswa_id' => $siswaId, 'total_poin' => $totalPoin]);

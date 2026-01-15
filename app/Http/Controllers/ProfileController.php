@@ -14,146 +14,148 @@ class ProfileController extends Controller
 {
     public function index()
     {
-        // CRITICAL: Hanya user yang login yang bisa akses profil mereka sendiri
-        $user = auth()->user();
-        
-        // Admin tidak punya profil detail
-        if ($user->role === 'admin') {
+        try {
+            $user = auth()->user();
+            
+            if ($user->role === 'admin') {
+                return redirect()->route('dashboard')
+                    ->with('info', 'Admin tidak memiliki halaman profil');
+            }
+            
+            $profileData = $this->getProfileData($user);
+            
+            return view('profile.index', compact('user', 'profileData'));
+        } catch (\Exception $e) {
+            \Log::error('Profile Error: ' . $e->getMessage());
             return redirect()->route('dashboard')
-                ->with('info', 'Admin tidak memiliki halaman profil');
+                ->with('error', 'Terjadi kesalahan saat memuat profil');
         }
-        
-        $profileData = $this->getProfileData($user);
-        
-        return view('profile.index', compact('user', 'profileData'));
     }
     
     private function getProfileData($user)
     {
-        // CRITICAL: Validasi user_id untuk mencegah anomali
-        $userId = $user->id;
+        try {
+            $userId = $user->id;
+            
+            switch ($user->role) {
+                case 'siswa':
+                    return $this->getSiswaProfile($userId);
+                    
+                case 'guru':
+                case 'wali_kelas':
+                case 'bk':
+                    return $this->getGuruProfile($userId, $user);
+                    
+                case 'ortu':
+                    return $this->getOrtuProfile($userId);
+                    
+                case 'kesiswaan':
+                case 'kepala_sekolah':
+                    return ['type' => 'staff', 'data' => null];
+                    
+                default:
+                    return ['type' => 'unknown', 'data' => null];
+            }
+        } catch (\Exception $e) {
+            \Log::error('getProfileData Error: ' . $e->getMessage());
+            return ['type' => 'error', 'data' => null, 'message' => 'Terjadi kesalahan'];
+        }
+    }
+    
+    private function getSiswaProfile($userId)
+    {
+        $siswa = Siswa::with(['kelas', 'tahunAjaran'])
+            ->where('users_id', $userId)
+            ->first();
         
-        switch ($user->role) {
-            case 'siswa':
-                // Ambil data siswa HANYA yang terhubung dengan user ini
-                $siswa = Siswa::with(['kelas', 'tahunAjaran'])
-                    ->where('users_id', $userId)
-                    ->first();
-                
-                if (!$siswa) {
-                    return ['type' => 'siswa', 'data' => null, 'message' => 'Data siswa tidak ditemukan'];
-                }
-                
-                // Hitung statistik HANYA untuk siswa ini
-                $totalPelanggaran = DB::table('pelanggarans')
+        if (!$siswa) {
+            return ['type' => 'siswa', 'data' => null, 'message' => 'Data siswa tidak ditemukan'];
+        }
+        
+        return [
+            'type' => 'siswa',
+            'data' => $siswa,
+            'stats' => [
+                'total_pelanggaran' => DB::table('pelanggarans')
                     ->where('siswa_id', $siswa->id)
                     ->whereIn('status_verifikasi', ['diverifikasi', 'terverifikasi'])
-                    ->count();
-                    
-                $totalPrestasi = DB::table('prestasis')
+                    ->count(),
+                'total_prestasi' => DB::table('prestasis')
                     ->where('siswa_id', $siswa->id)
                     ->where('status_verifikasi', 'verified')
-                    ->count();
-                    
-                $totalPoin = DB::table('pelanggarans')
+                    ->count(),
+                'total_poin' => DB::table('pelanggarans')
                     ->where('siswa_id', $siswa->id)
                     ->whereIn('status_verifikasi', ['diverifikasi', 'terverifikasi'])
-                    ->sum('poin');
-                
-                return [
-                    'type' => 'siswa',
-                    'data' => $siswa,
-                    'stats' => [
-                        'total_pelanggaran' => $totalPelanggaran,
-                        'total_prestasi' => $totalPrestasi,
-                        'total_poin' => $totalPoin
-                    ]
-                ];
-                
-            case 'guru':
-            case 'wali_kelas':
-            case 'bk':
-                // Ambil data guru HANYA yang terhubung dengan user ini
-                $guru = Guru::where('users_id', $userId)->first();
-                
-                if (!$guru) {
-                    return ['type' => 'guru', 'data' => null, 'message' => 'Data guru tidak ditemukan'];
-                }
-                
-                // Hitung statistik HANYA untuk guru ini
-                $totalPelanggaran = DB::table('pelanggarans')
-                    ->where('guru_pencatat', $guru->id)
-                    ->count();
-                    
-                $totalPrestasi = DB::table('prestasis')
-                    ->where('guru_pencatat', $guru->id)
-                    ->count();
-                
-                // Cek apakah wali kelas
-                $kelasWali = null;
-                if ($user->is_wali_kelas) {
-                    $kelasWali = DB::table('kelas')
-                        ->where('wali_kelas_id', $guru->id)
-                        ->where('is_active', true)
-                        ->first();
-                }
-                
-                return [
-                    'type' => 'guru',
-                    'data' => $guru,
-                    'kelas_wali' => $kelasWali,
-                    'stats' => [
-                        'total_pelanggaran' => $totalPelanggaran,
-                        'total_prestasi' => $totalPrestasi
-                    ]
-                ];
-                
-            case 'ortu':
-                // Ambil biodata ortu HANYA yang terhubung dengan user ini
-                $biodata = BiodataOrtu::with(['siswa.kelas', 'siswa.tahunAjaran'])
-                    ->where('user_id', $userId)
-                    ->first();
-                
-                if (!$biodata) {
-                    return ['type' => 'ortu', 'data' => null, 'message' => 'Biodata orang tua belum dilengkapi'];
-                }
-                
-                // Hitung statistik anak HANYA jika biodata approved
-                $stats = null;
-                if ($biodata->status_approval === 'approved' && $biodata->siswa) {
-                    $stats = [
-                        'total_pelanggaran' => DB::table('pelanggarans')
-                            ->where('siswa_id', $biodata->siswa_id)
-                            ->whereIn('status_verifikasi', ['diverifikasi', 'terverifikasi'])
-                            ->count(),
-                        'total_prestasi' => DB::table('prestasis')
-                            ->where('siswa_id', $biodata->siswa_id)
-                            ->where('status_verifikasi', 'verified')
-                            ->count(),
-                        'total_poin' => DB::table('pelanggarans')
-                            ->where('siswa_id', $biodata->siswa_id)
-                            ->whereIn('status_verifikasi', ['diverifikasi', 'terverifikasi'])
-                            ->sum('poin')
-                    ];
-                }
-                
-                return [
-                    'type' => 'ortu',
-                    'data' => $biodata,
-                    'stats' => $stats
-                ];
-                
-            case 'kesiswaan':
-            case 'kepala_sekolah':
-                // Role ini hanya punya data user, tidak ada data tambahan
-                return [
-                    'type' => 'staff',
-                    'data' => null
-                ];
-                
-            default:
-                return ['type' => 'unknown', 'data' => null];
+                    ->sum('poin') ?? 0
+            ]
+        ];
+    }
+    
+    private function getGuruProfile($userId, $user)
+    {
+        $guru = Guru::where('users_id', $userId)->first();
+        
+        if (!$guru) {
+            return ['type' => 'guru', 'data' => null, 'message' => 'Data guru tidak ditemukan'];
         }
+        
+        $kelasWali = null;
+        if ($user->is_wali_kelas) {
+            $kelasWali = DB::table('kelas')
+                ->where('wali_kelas_id', $guru->id)
+                ->where('is_active', true)
+                ->first();
+        }
+        
+        return [
+            'type' => 'guru',
+            'data' => $guru,
+            'kelas_wali' => $kelasWali,
+            'stats' => [
+                'total_pelanggaran' => DB::table('pelanggarans')
+                    ->where('guru_pencatat', $guru->id)
+                    ->count(),
+                'total_prestasi' => DB::table('prestasis')
+                    ->where('guru_pencatat', $guru->id)
+                    ->count()
+            ]
+        ];
+    }
+    
+    private function getOrtuProfile($userId)
+    {
+        $biodata = BiodataOrtu::with(['siswa.kelas', 'siswa.tahunAjaran'])
+            ->where('user_id', $userId)
+            ->first();
+        
+        if (!$biodata) {
+            return ['type' => 'ortu', 'data' => null, 'message' => 'Biodata orang tua belum dilengkapi'];
+        }
+        
+        $stats = null;
+        if ($biodata->status_approval === 'approved' && $biodata->siswa) {
+            $stats = [
+                'total_pelanggaran' => DB::table('pelanggarans')
+                    ->where('siswa_id', $biodata->siswa_id)
+                    ->whereIn('status_verifikasi', ['diverifikasi', 'terverifikasi'])
+                    ->count(),
+                'total_prestasi' => DB::table('prestasis')
+                    ->where('siswa_id', $biodata->siswa_id)
+                    ->where('status_verifikasi', 'verified')
+                    ->count(),
+                'total_poin' => DB::table('pelanggarans')
+                    ->where('siswa_id', $biodata->siswa_id)
+                    ->whereIn('status_verifikasi', ['diverifikasi', 'terverifikasi'])
+                    ->sum('poin') ?? 0
+            ];
+        }
+        
+        return [
+            'type' => 'ortu',
+            'data' => $biodata,
+            'stats' => $stats
+        ];
     }
     
     public function edit()

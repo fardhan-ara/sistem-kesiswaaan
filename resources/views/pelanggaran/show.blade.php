@@ -101,12 +101,22 @@
                     <i class="fas fa-arrow-left"></i> Kembali
                 </a>
                 @if(in_array(auth()->user()->role, ['admin', 'kesiswaan']) && $pelanggaran->status_verifikasi == 'menunggu')
-                    <button type="button" class="btn btn-success" onclick="verifikasiPelanggaran({{ $pelanggaran->id }})">
-                        <i class="fas fa-check"></i> Verifikasi
-                    </button>
-                    <button type="button" class="btn btn-danger" onclick="tolakPelanggaran({{ $pelanggaran->id }})">
-                        <i class="fas fa-times"></i> Tolak
-                    </button>
+                    <form action="{{ route('pelanggaran.verify', $pelanggaran) }}" method="POST" style="display:inline;" onsubmit="console.log('Form submitted'); return true;">
+                        @csrf
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-check"></i> Verifikasi
+                        </button>
+                    </form>
+                    <form action="{{ route('pelanggaran.reject', $pelanggaran) }}" method="POST" style="display:inline;">
+                        @csrf
+                        <input type="text" name="alasan_penolakan" placeholder="Alasan" required style="width:200px;">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-times"></i> Tolak
+                        </button>
+                    </form>
+                    <div class="mt-2">
+                        <small class="text-muted">Debug: Route = {{ route('pelanggaran.verify', $pelanggaran) }}</small>
+                    </div>
                 @endif
             </div>
         </div>
@@ -134,9 +144,8 @@
     </div>
 </div>
 
-<form id="verify-form" action="{{ route('pelanggaran.verify', $pelanggaran) }}" method="POST" style="display: none;">
+<form id="verify-form-{{ $pelanggaran->id }}" action="{{ route('pelanggaran.verify', $pelanggaran) }}" method="POST" style="display: none;">
     @csrf
-    @method('POST')
 </form>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -153,7 +162,7 @@ function verifikasiPelanggaran(id) {
         cancelButtonText: 'Batal'
     }).then((result) => {
         if (result.isConfirmed) {
-            document.getElementById('verify-form').submit();
+            document.getElementById('verify-form-' + id).submit();
         }
     });
 }
@@ -203,8 +212,10 @@ function tolakPelanggaran(id) {
         icon: 'success',
         title: 'Berhasil!',
         text: '{{ session('success') }}',
-        timer: 3000,
+        timer: 2000,
         showConfirmButton: false
+    }).then(() => {
+        location.reload();
     });
 @endif
 
