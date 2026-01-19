@@ -274,6 +274,45 @@
                     </li>
                     <?php endif; ?>
 
+                    <?php if(auth()->check() && auth()->user()->role === 'bk'): ?>
+                    <li class="nav-header">BIMBINGAN KONSELING</li>
+                    
+                    <li class="nav-item">
+                        <a href="<?php echo e(route('bk.index')); ?>" class="nav-link <?php echo e(request()->routeIs('bk.*') ? 'active' : ''); ?>">
+                            <i class="nav-icon fas fa-comments"></i>
+                            <p>Sesi BK</p>
+                        </a>
+                    </li>
+                    
+                    <li class="nav-item">
+                        <a href="<?php echo e(route('siswa.index')); ?>" class="nav-link <?php echo e(request()->routeIs('siswa.*') ? 'active' : ''); ?>">
+                            <i class="nav-icon fas fa-user-graduate"></i>
+                            <p>Data Siswa</p>
+                        </a>
+                    </li>
+                    
+                    <li class="nav-item">
+                        <a href="<?php echo e(route('pelanggaran.index')); ?>" class="nav-link <?php echo e(request()->routeIs('pelanggaran.*') ? 'active' : ''); ?>">
+                            <i class="nav-icon fas fa-exclamation-triangle"></i>
+                            <p>Pelanggaran Siswa</p>
+                        </a>
+                    </li>
+                    
+                    <li class="nav-item">
+                        <a href="<?php echo e(route('prestasi.index')); ?>" class="nav-link <?php echo e(request()->routeIs('prestasi.*') ? 'active' : ''); ?>">
+                            <i class="nav-icon fas fa-trophy"></i>
+                            <p>Prestasi Siswa</p>
+                        </a>
+                    </li>
+                    
+                    <li class="nav-item">
+                        <a href="<?php echo e(route('sanksi.index')); ?>" class="nav-link <?php echo e(request()->routeIs('sanksi.*') ? 'active' : ''); ?>">
+                            <i class="nav-icon fas fa-gavel"></i>
+                            <p>Sanksi</p>
+                        </a>
+                    </li>
+                    <?php endif; ?>
+
                     <?php if(auth()->check() && in_array(auth()->user()->role, ['admin', 'kesiswaan', 'kepala_sekolah'])): ?>
                     <li class="nav-header">DATA MASTER</li>
                     

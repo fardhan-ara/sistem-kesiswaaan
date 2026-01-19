@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panduan Pengguna Lengkap - SIKAP</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 40px;
+            color: #333;
+            max-width: 800px;
+        }
+        
+        h1 {
+            color: #2E74B5;
+            border-bottom: 3px solid #2E74B5;
+            padding-bottom: 10px;
+            font-size: 28px;
+            text-align: center;
+        }
+        
+        h2 {
+            color: #1F4E79;
+            border-bottom: 2px solid #1F4E79;
+            padding-bottom: 5px;
+            font-size: 22px;
+            margin-top: 40px;
+            page-break-before: always;
+        }
+        
+        h3 {
+            color: #365F91;
+            font-size: 18px;
+            margin-top: 30px;
+        }
+        
+        h4 {
+            color: #4472C4;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+        
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #2E74B5;
+        }
+        
+        ul, ol {
+            margin: 15px 0;
+            padding-left: 30px;
+        }
+        
+        li {
+            margin: 8px 0;
+        }
+        
+        .warning {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            border-left: 4px solid #f39c12;
+        }
+        
+        .success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            border-left: 4px solid #27ae60;
+        }
+        
+        .subtitle {
+            text-align: center;
+            font-style: italic;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        
+        .toc {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        
+        .toc ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        
+        .toc li {
+            margin: 8px 0;
+            padding-left: 20px;
+        }
+        
+        @media print {
+            body { margin: 20px; }
+            h2 { page-break-before: always; }
+            .no-print { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<h1>📚 PANDUAN PENGGUNA LENGKAP<br>SISTEM KESISWAAN (SIKAP)</h1>
+
+<div class="subtitle">
+    <strong>Sistem Informasi Kesiswaan dan Prestasi</strong><br>
+    <em>Panduan Lengkap untuk Semua Pengguna</em>
+</div>
+
+<div class="toc">
+    <h2>📑 DAFTAR ISI</h2>
+    <ul>
+        <li>1. Pengenalan Sistem</li>
+        <li>2. Cara Mengakses Sistem</li>
+        <li>3. Panduan Login</li>
+        <li>4. Dashboard Utama</li>
+        <li>5. Panduan untuk Administrator</li>
+        <li>6. Panduan untuk Staff Kesiswaan</li>
+        <li>7. Panduan untuk Guru</li>
+        <li>8. Panduan untuk Wali Kelas</li>
+        <li>9. Panduan untuk Guru BK</li>
+        <li>10. Panduan untuk Siswa</li>
+        <li>11. Panduan untuk Orang Tua</li>
+        <li>12. Fitur Laporan</li>
+        <li>13. Troubleshooting</li>
+        <li>14. FAQ</li>
+    </ul>
+</div>
+
+<h2>1. PENGENALAN SISTEM</h2>
+
+<h3>1.1 Apa itu SIKAP?</h3>
+<p>SIKAP (Sistem Informasi Kesiswaan dan Prestasi) adalah aplikasi berbasis web yang dirancang khusus untuk mengelola seluruh aspek kesiswaan di sekolah. Sistem ini membantu sekolah dalam:</p>
+
+<ul>
+    <li><strong>Mengelola data siswa</strong> secara terpusat dan terorganisir</li>
+    <li><strong>Mencatat pelanggaran</strong> dengan sistem poin otomatis</li>
+    <li><strong>Mencatat prestasi</strong> siswa dengan berbagai tingkatan</li>
+    <li><strong>Mengelola sanksi</strong> yang diberikan secara otomatis</li>
+    <li><strong>Melakukan bimbingan konseling</strong> dengan dokumentasi lengkap</li>
+    <li><strong>Berkomunikasi dengan orang tua</strong> secara real-time</li>
+    <li><strong>Membuat laporan</strong> dalam format PDF</li>
+</ul>
+
+<h3>1.2 Keunggulan Sistem</h3>
+<div class="success">
+    <ul>
+        <li>✅ <strong>Otomatisasi Sanksi</strong>: Sanksi dibuat otomatis ketika poin pelanggaran mencapai 100</li>
+        <li>✅ <strong>Verifikasi Berlapis</strong>: Setiap data melalui proses verifikasi untuk akurasi</li>
+        <li>✅ <strong>Komunikasi Real-time</strong>: Orang tua dapat memantau anak secara langsung</li>
+        <li>✅ <strong>Laporan Lengkap</strong>: Export laporan dalam format PDF dengan filter</li>
+        <li>✅ <strong>Multi-Role</strong>: Mendukung 7 jenis pengguna dengan hak akses berbeda</li>
+        <li>✅ <strong>Responsive</strong>: Dapat diakses dari komputer, tablet, dan smartphone</li>
+    </ul>
+</div>
+
+<h3>1.3 Jenis Pengguna</h3>
+<table>
+    <tr>
+        <th>No</th>
+        <th>Role</th>
+        <th>Deskripsi</th>
+        <th>Hak Akses</th>
+    </tr>
+    <tr>
+        <td>1</td>
+        <td><strong>Administrator</strong></td>
+        <td>Pengelola utama sistem</td>
+        <td>Akses penuh semua fitur</td>
+    </tr>
+    <tr>
+        <td>2</td>
+        <td><strong>Staff Kesiswaan</strong></td>
+        <td>Pengelola data kesiswaan</td>
+        <td>Hampir sama dengan admin</td>
+    </tr>
+    <tr>
+        <td>3</td>
+        <td><strong>Guru</strong></td>
+        <td>Pengajar di sekolah</td>
+        <td>Input pelanggaran & prestasi</td>
+    </tr>
+    <tr>
+        <td>4</td>
+        <td><strong>Wali Kelas</strong></td>
+        <td>Guru yang mengelola kelas</td>
+        <td>Kelola kelas + komunikasi ortu</td>
+    </tr>
+    <tr>
+        <td>5</td>
+        <td><strong>Guru BK</strong></td>
+        <td>Guru Bimbingan Konseling</td>
+        <td>Bimbingan konseling siswa</td>
+    </tr>
+    <tr>
+        <td>6</td>
+        <td><strong>Siswa</strong></td>
+        <td>Peserta didik</td>
+        <td>Lihat data pribadi</td>
+    </tr>
+    <tr>
+        <td>7</td>
+        <td><strong>Orang Tua</strong></td>
+        <td>Wali siswa</td>
+        <td>Monitor data anak</td>
+    </tr>
+</table>
+
+<h2>2. CARA MENGAKSES SISTEM</h2>
+
+<h3>2.1 Persyaratan Sistem</h3>
+<p><strong>Perangkat yang Didukung:</strong></p>
+<ul>
+    <li>💻 Komputer/Laptop (Windows, Mac, Linux)</li>
+    <li>📱 Tablet (Android, iOS)</li>
+    <li>📱 Smartphone (Android, iOS)</li>
+</ul>
+
+<p><strong>Browser yang Didukung:</strong></p>
+<ul>
+    <li>Google Chrome (Direkomendasikan)</li>
+    <li>Mozilla Firefox</li>
+    <li>Microsoft Edge</li>
+    <li>Safari (untuk Mac/iOS)</li>
+</ul>
+
+<p><strong>Koneksi Internet:</strong></p>
+<ul>
+    <li>Minimal 1 Mbps untuk penggunaan normal</li>
+    <li>2 Mbps atau lebih untuk upload file</li>
+</ul>
+
+<h3>2.2 URL Akses</h3>
+<pre><code>Lokal (Development): http://localhost:8000
+Atau: http://127.0.0.1:8000
+
+Production: [URL akan diberikan oleh admin]</code></pre>
+
+<h3>2.3 Akun Default (untuk Testing)</h3>
+<table>
+    <tr>
+        <th>Role</th>
+        <th>Email</th>
+        <th>Password</th>
+    </tr>
+    <tr>
+        <td>Administrator</td>
+        <td><code>admin@test.com</code></td>
+        <td><code>password</code></td>
+    </tr>
+    <tr>
+        <td>Staff Kesiswaan</td>
+        <td><code>kesiswaan@test.com</code></td>
+        <td><code>password</code></td>
+    </tr>
+    <tr>
+        <td>Guru</td>
+        <td><code>guru@test.com</code></td>
+        <td><code>password</code></td>
+    </tr>
+    <tr>
+        <td>Siswa</td>
+        <td><code>siswa@test.com</code></td>
+        <td><code>password</code></td>
+    </tr>
+</table>
+
+<div class="warning">
+    <strong>⚠️ Penting:</strong> Ganti password default setelah login pertama!
+</div>
+
+<h2>3. PANDUAN LOGIN</h2>
+
+<h3>3.1 Langkah-langkah Login</h3>
+<ol>
+    <li><strong>Buka Browser</strong>
+        <ul>
+            <li>Pastikan koneksi internet stabil</li>
+            <li>Gunakan browser yang didukung</li>
+        </ul>
+    </li>
+    <li><strong>Akses URL Sistem</strong>
+        <ul>
+            <li>Ketik URL di address bar</li>
+            <li>Tekan Enter</li>
+        </ul>
+    </li>
+    <li><strong>Masukkan Kredensial</strong>
+        <ul>
+            <li>Email: Masukkan email yang terdaftar</li>
+            <li>Password: Masukkan password yang benar</li>
+            <li>Centang "Remember Me" jika diperlukan</li>
+        </ul>
+    </li>
+    <li><strong>Klik Tombol Login</strong>
+        <ul>
+            <li>Sistem akan memverifikasi data</li>
+            <li>Jika berhasil, akan diarahkan ke dashboard</li>
+        </ul>
+    </li>
+</ol>
+
+<h3>3.2 Lupa Password</h3>
+<p>Jika lupa password:</p>
+<ol>
+    <li>Hubungi administrator sekolah</li>
+    <li>Berikan email yang terdaftar</li>
+    <li>Admin akan mereset password</li>
+    <li>Anda akan mendapat password baru</li>
+    <li>Login dan ganti password segera</li>
+</ol>
+
+<h3>3.3 Masalah Login</h3>
+<p><strong>Email/Password Salah:</strong></p>
+<ul>
+    <li>Periksa kembali email dan password</li>
+    <li>Pastikan Caps Lock tidak aktif</li>
+    <li>Coba reset password</li>
+</ul>
+
+<p><strong>Akun Belum Diverifikasi:</strong></p>
+<ul>
+    <li>Hubungi administrator</li>
+    <li>Tunggu proses approval</li>
+    <li>Cek email untuk verifikasi</li>
+</ul>
+
+<h2>4. DASHBOARD UTAMA</h2>
+
+<h3>4.1 Komponen Dashboard</h3>
+<p>Dashboard adalah halaman utama setelah login yang menampilkan:</p>
+
+<p><strong>Header:</strong></p>
+<ul>
+    <li>Logo sekolah</li>
+    <li>Nama pengguna</li>
+    <li>Menu logout</li>
+    <li>Notifikasi</li>
+</ul>
+
+<p><strong>Sidebar:</strong></p>
+<ul>
+    <li>Menu navigasi sesuai role</li>
+    <li>Collapse/expand menu</li>
+    <li>Indikator menu aktif</li>
+</ul>
+
+<p><strong>Content Area:</strong></p>
+<ul>
+    <li>Statistik utama</li>
+    <li>Grafik dan chart</li>
+    <li>Tabel data terbaru</li>
+    <li>Quick actions</li>
+</ul>
+
+<p><strong>Footer:</strong></p>
+<ul>
+    <li>Informasi sistem</li>
+    <li>Copyright</li>
+    <li>Link bantuan</li>
+</ul>
+
+<h3>4.2 Statistik Dashboard</h3>
+
+<p><strong>Untuk Admin/Kesiswaan:</strong></p>
+<ul>
+    <li>📊 Total siswa aktif</li>
+    <li>⚠️ Total pelanggaran bulan ini</li>
+    <li>🏆 Total prestasi bulan ini</li>
+    <li>⚖️ Sanksi aktif</li>
+    <li>📈 Grafik trend pelanggaran</li>
+    <li>📈 Grafik trend prestasi</li>
+</ul>
+
+<p><strong>Untuk Guru:</strong></p>
+<ul>
+    <li>📝 Pelanggaran yang diinput</li>
+    <li>🏆 Prestasi yang diinput</li>
+    <li>⏳ Data pending verifikasi</li>
+    <li>📅 Aktivitas bulan ini</li>
+</ul>
+
+<p><strong>Untuk Siswa:</strong></p>
+<ul>
+    <li>⚠️ Total poin pelanggaran</li>
+    <li>🏆 Total prestasi</li>
+    <li>⚖️ Sanksi aktif (jika ada)</li>
+    <li>📋 Riwayat terbaru</li>
+</ul>
+
+<p><strong>Untuk Orang Tua:</strong></p>
+<ul>
+    <li>👨🎓 Data lengkap anak</li>
+    <li>⚠️ Pelanggaran anak</li>
+    <li>🏆 Prestasi anak</li>
+    <li>💬 Pesan dari sekolah</li>
+</ul>
+
+<h2>5. PANDUAN UNTUK ADMINISTRATOR</h2>
+
+<h3>5.1 Menu yang Tersedia</h3>
+<p>Administrator memiliki akses penuh ke semua fitur:</p>
+
+<p><strong>📊 Dashboard</strong></p>
+<ul>
+    <li>Statistik lengkap sistem</li>
+    <li>Grafik pelanggaran & prestasi</li>
+    <li>Monitor aktivitas pengguna</li>
+</ul>
+
+<p><strong>👥 Manajemen User</strong></p>
+<ul>
+    <li>Kelola semua pengguna</li>
+    <li>Approve/reject pendaftaran</li>
+    <li>Reset password</li>
+    <li>Atur role dan permission</li>
+</ul>
+
+<p><strong>🎓 Data Master</strong></p>
+<ul>
+    <li>Kelola data siswa</li>
+    <li>Kelola data guru</li>
+    <li>Kelola data kelas</li>
+    <li>Kelola tahun ajaran</li>
+</ul>
+
+<p><strong>📋 Jenis Pelanggaran & Prestasi</strong></p>
+<ul>
+    <li>Atur kategori pelanggaran</li>
+    <li>Atur poin pelanggaran</li>
+    <li>Atur jenis prestasi</li>
+    <li>Atur poin prestasi</li>
+</ul>
+
+<p><strong>⚠️ Verifikasi Data</strong></p>
+<ul>
+    <li>Verifikasi pelanggaran</li>
+    <li>Verifikasi prestasi</li>
+    <li>Approve biodata orang tua</li>
+</ul>
+
+<p><strong>📄 Laporan</strong></p>
+<ul>
+    <li>Generate laporan PDF</li>
+    <li>Export data</li>
+    <li>Statistik lengkap</li>
+</ul>
+
+<h3>5.2 Mengelola Data Siswa</h3>
+
+<p><strong>Menambah Siswa Baru:</strong></p>
+
+<ol>
+    <li><strong>Akses Menu Siswa</strong>
+        <pre><code>Sidebar → Data Master → Siswa</code></pre>
+    </li>
+    <li><strong>Klik Tombol "Tambah Siswa"</strong>
+        <ul>
+            <li>Tombol berwarna biru di pojok kanan atas</li>
+        </ul>
+    </li>
+    <li><strong>Isi Form Data Siswa</strong>
+        <pre><code>NIS: [Nomor Induk Siswa - Wajib Unik]
+Nama Lengkap: [Nama siswa sesuai dokumen]
+Kelas: [Pilih dari dropdown]
+Jenis Kelamin: [Laki-laki/Perempuan]
+Tahun Ajaran: [Pilih tahun ajaran aktif]
+Alamat: [Alamat lengkap siswa]
+No. Telepon: [Nomor yang bisa dihubungi]
+Email: [Email untuk akun siswa - opsional]</code></pre>
+    </li>
+    <li><strong>Validasi Data</strong>
+        <ul>
+            <li>Pastikan NIS belum digunakan</li>
+            <li>Nama tidak boleh kosong</li>
+            <li>Kelas harus dipilih</li>
+            <li>Format email harus benar</li>
+        </ul>
+    </li>
+    <li><strong>Simpan Data</strong>
+        <ul>
+            <li>Klik tombol "Simpan"</li>
+            <li>Sistem akan membuat akun user otomatis</li>
+            <li>Password default: "password"</li>
+        </ul>
+    </li>
+</ol>
+
+<h3>5.3 Verifikasi Pelanggaran</h3>
+
+<p><strong>Proses Verifikasi:</strong></p>
+
+<ol>
+    <li><strong>Akses Menu Pelanggaran</strong>
+        <pre><code>Sidebar → Pelanggaran</code></pre>
+    </li>
+    <li><strong>Filter Data Pending</strong>
+        <ul>
+            <li>Klik tab "Menunggu Verifikasi"</li>
+            <li>Atau filter status "Pending"</li>
+        </ul>
+    </li>
+    <li><strong>Review Data Pelanggaran</strong>
+        <pre><code>Siswa: [Nama siswa yang melanggar]
+Jenis Pelanggaran: [Kategori pelanggaran]
+Poin: [Poin yang akan ditambahkan]
+Keterangan: [Detail kejadian]
+Diinput oleh: [Guru yang menginput]
+Tanggal: [Kapan terjadi]</code></pre>
+    </li>
+    <li><strong>Ambil Keputusan</strong>
+        <p><strong>Jika SETUJUI:</strong></p>
+        <ul>
+            <li>Klik tombol "Verifikasi"</li>
+            <li>Pilih "Setujui"</li>
+            <li>Poin akan ditambahkan ke siswa</li>
+            <li>Status berubah menjadi "Diverifikasi"</li>
+        </ul>
+        
+        <p><strong>Jika TOLAK:</strong></p>
+        <ul>
+            <li>Klik tombol "Verifikasi"</li>
+            <li>Pilih "Tolak"</li>
+            <li>Isi alasan penolakan</li>
+            <li>Status berubah menjadi "Ditolak"</li>
+        </ul>
+    </li>
+    <li><strong>Sistem Otomatis Cek Sanksi</strong>
+        <ul>
+            <li>Jika total poin siswa ≥ 100</li>
+            <li>Sanksi otomatis dibuat</li>
+            <li>Email notifikasi terkirim</li>
+        </ul>
+    </li>
+</ol>
+
+<h2>13. TROUBLESHOOTING</h2>
+
+<h3>13.1 Masalah Login</h3>
+
+<p><strong>Problem: Email/Password Salah</strong></p>
+<p>Solusi:</p>
+<ol>
+    <li>Periksa kembali email dan password</li>
+    <li>Pastikan Caps Lock tidak aktif</li>
+    <li>Coba copy-paste email dari dokumen</li>
+    <li>Hubungi admin untuk reset password</li>
+</ol>
+
+<p><strong>Problem: Akun Belum Diverifikasi</strong></p>
+<p>Solusi:</p>
+<ol>
+    <li>Cek email untuk link verifikasi</li>
+    <li>Klik link verifikasi di email</li>
+    <li>Jika tidak ada email, hubungi admin</li>
+    <li>Tunggu proses approval admin</li>
+</ol>
+
+<h3>13.2 Masalah Input Data</h3>
+
+<p><strong>Problem: Data Tidak Tersimpan</strong></p>
+<p>Solusi:</p>
+<ol>
+    <li>Periksa koneksi internet</li>
+    <li>Pastikan semua field wajib terisi</li>
+    <li>Cek format data (email, tanggal, dll)</li>
+    <li>Refresh halaman dan coba lagi</li>
+</ol>
+
+<h2>14. FAQ (FREQUENTLY ASKED QUESTIONS)</h2>
+
+<h3>14.1 Pertanyaan Umum</h3>
+
+<p><strong>Q: Bagaimana cara mendapatkan akun?</strong><br>
+A: Hubungi administrator sekolah untuk dibuatkan akun sesuai role Anda.</p>
+
+<p><strong>Q: Bisakah satu orang memiliki multiple role?</strong><br>
+A: Ya, dengan persetujuan admin. Misalnya guru yang juga wali kelas.</p>
+
+<p><strong>Q: Apakah data aman?</strong><br>
+A: Ya, sistem menggunakan enkripsi dan backup otomatis untuk keamanan data.</p>
+
+<p><strong>Q: Bisakah diakses dari HP?</strong><br>
+A: Ya, sistem responsive dan bisa diakses dari smartphone/tablet.</p>
+
+<h3>14.2 Pertanyaan Teknis</h3>
+
+<p><strong>Q: Browser apa yang direkomendasikan?</strong><br>
+A: Google Chrome versi terbaru untuk performa optimal.</p>
+
+<p><strong>Q: Bagaimana jika lupa password?</strong><br>
+A: Hubungi administrator untuk reset password.</p>
+
+<p><strong>Q: Bisakah data diekspor?</strong><br>
+A: Ya, tersedia fitur export PDF untuk laporan.</p>
+
+<p><strong>Q: Apakah ada backup data?</strong><br>
+A: Ya, sistem melakukan backup otomatis setiap hari.</p>
+
+<h2>KONTAK & BANTUAN</h2>
+
+<h3>Kontak Administrator</h3>
+<p><strong>Email:</strong> admin@sekolah.sch.id<br>
+<strong>Telepon:</strong> (021) 1234-5678<br>
+<strong>Jam Kerja:</strong> Senin-Jumat, 07:00-15:00</p>
+
+<h3>Bantuan Teknis</h3>
+<p><strong>Email:</strong> support@sekolah.sch.id<br>
+<strong>WhatsApp:</strong> 0812-3456-7890</p>
+
+<div style="text-align: center; margin-top: 50px; color: #666;">
+    <p><strong>© 2025 SIKAP - Sistem Informasi Kesiswaan dan Prestasi</strong><br>
+    <em>Dikembangkan untuk Kemajuan Pendidikan Indonesia</em></p>
+</div>
+
+<div class="no-print" style="margin-top: 30px; padding: 20px; background-color: #e3f2fd; border-radius: 5px;">
+    <h4>📄 Cara Menyimpan sebagai PDF atau Word:</h4>
+    <ol>
+        <li><strong>Untuk PDF:</strong> Tekan Ctrl+P → Pilih "Save as PDF" → Klik Save</li>
+        <li><strong>Untuk Word:</strong> Tekan Ctrl+A → Copy → Paste ke Microsoft Word → Save as .docx</li>
+        <li><strong>Print:</strong> Tekan Ctrl+P → Pilih printer → Print</li>
+    </ol>
+</div>
+
+</body>
+</html>
